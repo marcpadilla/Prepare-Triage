@@ -41,15 +41,27 @@ function Extract-DupTriage {
 
 function Extract-KapeTriage {
     Get-ChildItem -Path $Source -Filter '*.zip' -Recurse | ForEach-Object -Parallel {
-        Expand-Archive -Path $_ -DestinationPath $using:TempDest -Force
-        $vhdx = $using:TempDest + $_.BaseName + '.vhdx'
-        $msource = Mount-VHD -Path $vhdx -Passthru | Get-Disk | Get-Partition | Get-Volume
-        $msource = $msource.DriveLetter + ":"
-        $mdest = $using:Destination + $_.BaseName
-        & $using:Kape --msource $msource --mdest $mdest --mflush --module !EZParser --mef csv
-        Dismount-VHD -Path $vhdx
-        Remove-Item -Path $vhdx
+        $mdest = $using:Destination + $_.BaseName.Split('_')[-1]
+        # check for previously processed triage
+        if (Test-Path -Path $mdest) {
+            Write-Host $mdest "already exists... skipping triage package."
+        }
+        else {
+            Expand-Archive -Path $_ -DestinationPath $using:TempDest -Force
+            $vhdx = $using:TempDest + $_.BaseName + '.vhdx'
+            $msource = Mount-VHD -Path $vhdx -Passthru | Get-Disk | Get-Partition | Get-Volume
+            $msource = $msource.DriveLetter + ":"
+            & $using:Kape --msource $msource --mdest $mdest --mflush --module !EZParser --mef csv
+            Dismount-VHD -Path $vhdx
+            Remove-Item -Path $vhdx
+        }
     } -ThrottleLimit $cores
+}
+
+function Get-Records {
+    Get-ChildItem -Path $Destination -Filter '*EVTXCmd_Output.csv' -Recurse | ForEach-Object -Parallel {
+        Select-String $_.FullName | Add-Content evtx_records.csv
+    }
 }
 
 # main ====
@@ -66,21 +78,26 @@ $cores = [int]$cores
 
 # check for lol slow lab vm
 if ((Get-CimInstance -Class Win32_ComputerSystem | Select -ExpandProperty Domain) -eq 'cyber.local') {
-    Write-Host `n'This is a Cyber Lab VM. Reducing -Parallel to 2.'`n
+    Write-Host 'This is a Cyber Lab VM. Reducing -Parallel to 2.'`n
     $cores = 2
 }
 
-# add trailing \ due to my ignorance
+# add trailing "\" due to my ignorance / forgetfulness.
 if ($Destination[-1] -ne '\') {
     $Destination += '\'
 }
 
 if ($TriageType.ToLower() -eq 'duptriage') {
     Extract-DupTriage -Source $Source -Destination $Destination
-    } ElseIf ($type.ToLower() -eq 'kapetriage') {
+    } ElseIf ($TriageType.ToLower() -eq 'kapetriage') {
     Extract-KapeTriage -Source $Source -Destination $Destination
 }
 
-Remove-Item $TempDest -Recurse -Force
+# remove temporary directory if it even exists
+if (Test-Path -Path $TempDest) {
+    Remove-Item $TempDest -Recurse -Force
+}
+
+Write-Host "`nProcess-Trigage Complete.`n"
 
 pause
