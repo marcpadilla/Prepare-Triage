@@ -2,7 +2,7 @@
 .SYNOPSIS
 Takes a directory containing triage packages and processes them with KAPE.
 .EXAMPLE
-.\Process-Triage.ps1 -Source S:\matter\DupTriage\ -TriageType DupTriage -Destination C:\mpwd\kape\
+.\Process-Triage.ps1 -Source S:\matter\ -Destination C:\mpwd\kape\
 .NOTES
 Author: Marc Padilla
 E-Mail: marc@padil.la
@@ -14,43 +14,46 @@ param(
     [Parameter(Mandatory)]
     [string]$Source,
     [Parameter(Mandatory)]
-    [string]$TriageType,
-    [Parameter(Mandatory)]
     [string]$Destination
     )
 
 function Extract-DupTriage {
-    Get-ChildItem -Path $Source -Filter "*.7z" -Recurse | ForEach-Object -Parallel {
-        $CurrentHost = $using:TempDest + $_.BaseName
-        Write-Host "Current Host is" $_.BaseName
-        # decompress, decompres... and decompress
-        & $using:SevenZip x $_.FullName "-o$CurrentHost" 2>&1 | Out-Null
-        & $using:SevenZip x "$CurrentHost\*.tar.gz" "-o$CurrentHost" 2>&1 | Out-Null
-        Remove-Item $CurrentHost\*.tar.gz -Force
-        & $using:SevenZip x "$CurrentHost\*.tar" "-o$CurrentHost" 2>&1 | Out-Null
-        Remove-Item $CurrentHost\*.tar -Force
-        $mdest = $using:Destination + $_.BaseName
-        # run kape against decompressed data
-        & $using:Kape --msource $CurrentHost --mdest $mdest --mflush --module !EZParser --mef csv  2>&1 | Out-Null
-        Remove-Item $CurrentHost -Recurse -Force
-    } -ThrottleLimit $cores
-    # clean-up
-    Get-ChildItem -Path $Destination | Rename-Item -NewName {$_.FullName -replace '_DupTriage',''}
-    Get-ChildItem -Path $Destination | Rename-Item -NewName {$_.FullName -replace '\d{2}_',''}
-}
-
-function Extract-KapeTriage {
-    Get-ChildItem -Path $Source -Filter '*.zip' -Recurse | ForEach-Object -Parallel {
-        $mdest = $using:Destination + $_.BaseName.Split('_')[-1]
-        # check for previously processed triage
+    Get-ChildItem -Path $DtSource -Filter "*.7z" -Recurse | ForEach-Object -Parallel {
+        $mdest = $using:Destination + $_.BaseName.Split('_')[1]
+        # skip previously processed triage
         if (Test-Path -Path $mdest) {
             Write-Host $mdest "already exists... skipping triage package."
         }
         else {
+            Write-Host "Processing" $_.FullName
+            $CurrentHost = $using:TempDest + $_.BaseName
+            # decompress, decompress... and decompress
+            & $using:SevenZip x $_.FullName "-o$CurrentHost" 2>&1 | Out-Null
+            & $using:SevenZip x "$CurrentHost\*.tar.gz" "-o$CurrentHost" 2>&1 | Out-Null
+            Remove-Item $CurrentHost\*.tar.gz -Force
+            & $using:SevenZip x "$CurrentHost\*.tar" "-o$CurrentHost" 2>&1 | Out-Null
+            Remove-Item $CurrentHost\*.tar -Force
+            # adjust modules as needed
+            & $using:Kape --msource $CurrentHost --mdest $mdest --mflush --module !EZParser --mef csv  2>&1 | Out-Null
+            Remove-Item $CurrentHost -Recurse -Force
+        }
+    } -ThrottleLimit $cores
+}
+
+function Extract-KapeTriage {
+    Get-ChildItem -Path $KtSource -Filter '*.zip' -Recurse | ForEach-Object -Parallel {
+        $mdest = $using:Destination + $_.BaseName.Split('_')[-1]
+        # skip previously processed triage
+        if (Test-Path -Path $mdest) {
+            Write-Host $mdest "already exists... skipping triage package."
+        }
+        else {
+            Write-Host "Processing" $_.FullName
             Expand-Archive -Path $_ -DestinationPath $using:TempDest -Force
             $vhdx = $using:TempDest + $_.BaseName + '.vhdx'
             $msource = Mount-VHD -Path $vhdx -Passthru | Get-Disk | Get-Partition | Get-Volume
             $msource = $msource.DriveLetter + ":"
+            # adjust modules as needed
             & $using:Kape --msource $msource --mdest $mdest --mflush --module !EZParser --mef csv
             Dismount-VHD -Path $vhdx
             Remove-Item -Path $vhdx
@@ -82,16 +85,16 @@ if ((Get-CimInstance -Class Win32_ComputerSystem | Select -ExpandProperty Domain
     $cores = 2
 }
 
-# add trailing "\" due to my ignorance / forgetfulness.
+# concatenate "\" due to my ignorance / forgetfulness
 if ($Destination[-1] -ne '\') {
     $Destination += '\'
 }
 
-if ($TriageType.ToLower() -eq 'duptriage') {
-    Extract-DupTriage -Source $Source -Destination $Destination
-    } ElseIf ($TriageType.ToLower() -eq 'kapetriage') {
-    Extract-KapeTriage -Source $Source -Destination $Destination
-}
+# processes kapetriage packages first -- adjust as needed
+$KtSource = $Source + "\KapeTriage\"
+Extract-KapeTriage
+$DtSource = $Source + "\DupTriage\"
+Extract-DupTriage
 
 # remove temporary directory if it even exists
 if (Test-Path -Path $TempDest) {
