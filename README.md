@@ -16,4 +16,4 @@ Process-Triage expects the full path of 7-Zip to be C:\Program Files\7-Zip\7z.ex
 
 ## Additional Notes
 
-None. If you are having trouble please email me at [marc@padil.la](marc@padil.la).
+None. If you are having trouble please email me at [mailto:marc@padil.la](marc@padil.la).
