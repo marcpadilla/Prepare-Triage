@@ -1,6 +1,6 @@
 # Process-Triage
 
-Takes a directory containing DupTriage and/or KapeTriage packages and processes them with KAPE.
+Takes a directory containing archived DupTriage and/or KapeTriage packages and processes them with KAPE.
 
 ## Required Software
 
