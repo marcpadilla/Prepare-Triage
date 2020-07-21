@@ -34,7 +34,7 @@ function Extract-DupTriage {
             & $using:SevenZip x "$CurrentHost\*.tar" "-o$CurrentHost" 2>&1 | Out-Null
             Remove-Item $CurrentHost\*.tar -Force
             # adjust modules as needed
-            & $using:Kape --msource $CurrentHost --mdest $mdest --mflush --module !EZParser --mef csv  2>&1 | Out-Null
+            & $using:Kape --msource $CurrentHost --mdest $mdest --mflush --module !EZParser --mef csv 2>&1 | Out-Null
             Remove-Item $CurrentHost -Recurse -Force
         }
     } -ThrottleLimit $cores
@@ -54,7 +54,7 @@ function Extract-KapeTriage {
             $msource = Mount-VHD -Path $vhdx -Passthru | Get-Disk | Get-Partition | Get-Volume
             $msource = $msource.DriveLetter + ":"
             # adjust modules as needed
-            & $using:Kape --msource $msource --mdest $mdest --mflush --module !EZParser --mef csv
+            & $using:Kape --msource $msource --mdest $mdest --mflush --module !EZParser --mef csv 2>&1 | Out-Null
             Dismount-VHD -Path $vhdx
             Remove-Item -Path $vhdx
         }
