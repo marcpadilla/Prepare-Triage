@@ -2,6 +2,8 @@
 
 Takes a directory containing archived DupTriage and/or KapeTriage packages and processes them with KAPE.
 
+Process-Triage processes KapeTriage packages before processing DupTriage packages. This is my personal preference and can be adjusted to meet your needs. Process-Triage will detect if a triage package has already been processed for a host and will skip it. You can re-run Process-Triage as new triage packages are acquired throughout a matter.
+
 ## Required Software
 
 Process-Triage utilizes the following software:
@@ -14,4 +16,4 @@ Process-Triage expects the full path of 7-Zip to be C:\Program Files\7-Zip\7z.ex
 
 ## Additional Notes
 
-By default Process-Triage processes KapeTriage packages before processing DupTriage packages. This is my personal preference. It is possible to swap the order or write a loop to use whichever was taken first, more recent, etc.
+None.
