@@ -61,12 +61,6 @@ function Extract-KapeTriage {
     } -ThrottleLimit $cores
 }
 
-function Get-Records {
-    Get-ChildItem -Path $Destination -Filter '*EVTXCmd_Output.csv' -Recurse | ForEach-Object -Parallel {
-        Select-String $_.FullName | Add-Content evtx_records.csv
-    }
-}
-
 # main ====
 Write-Host "`nProcess-Triage by Marc Padilla`n"
 
