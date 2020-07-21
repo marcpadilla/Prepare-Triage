@@ -14,4 +14,4 @@ Process-Triage expects the full path of 7-Zip to be C:\Program Files\7-Zip\7z.ex
 
 ## Additional Notes
 
-By default Process-Triage processes KapeTriage packages before processing DupTriage packages. This is only due to my personal preference. It is possible to swap the order or write a loop to use whichever was taken first, more recent, etc.
+By default Process-Triage processes KapeTriage packages before processing DupTriage packages. This is my personal preference. It is possible to swap the order or write a loop to use whichever was taken first, more recent, etc.
