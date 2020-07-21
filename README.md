@@ -10,7 +10,7 @@ Process-Triage utilizes the following software:
 - KAPE [https://www.kroll.com/en/insights/publications/cyber/kroll-artifact-parser-extractor-kape](https://www.kroll.com/en/insights/publications/cyber/kroll-artifact-parser-extractor-kape)
 - PowerShell [https://github.com/PowerShell/powershell/releases](https://github.com/PowerShell/powershell/releases) *Version 7+ required for use of -Parallel*
 
-Process-Triage expects the full path of 7-Zip to be C:\Program Files\7-Zip\7z.exe and for the full path of KAPE to be C:\tools\kape\kape.exe. Adjust the Process-Triage script if either location is different on your system.
+Process-Triage expects the full path of 7-Zip to be C:\Program Files\7-Zip\7z.exe and the full path of KAPE to be C:\tools\kape\kape.exe. Adjust the Process-Triage script if either location is different on your system.
 
 ## Additional Notes
 
