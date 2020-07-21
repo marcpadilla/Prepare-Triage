@@ -6,7 +6,7 @@ Takes a directory containing triage packages and processes them with KAPE.
 .NOTES
 Author: Marc Padilla
 E-Mail: marc@padil.la
-Website: https://padil.la
+GitHub: https://github.com/marcpadilla
 #>
 
 [CmdletBinding()]
