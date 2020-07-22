@@ -17,84 +17,101 @@ param(
     [string]$Destination
     )
 
-function Extract-DupTriage {
-    Get-ChildItem -Path $DtSource -Filter "*.7z" -Recurse | ForEach-Object -Parallel {
-        $mdest = $using:Destination + $_.BaseName.Split('_')[1]
-        # skip previously processed triage
-        if (Test-Path -Path $mdest) {
-            Write-Host $mdest "already exists... skipping triage package."
-        }
-        else {
-            Write-Host "Processing" $_.FullName
-            $CurrentHost = $using:TempDest + $_.BaseName
-            # decompress, decompress... and decompress
-            & $using:SevenZip x $_.FullName "-o$CurrentHost" 2>&1 | Out-Null
-            & $using:SevenZip x "$CurrentHost\*.tar.gz" "-o$CurrentHost" 2>&1 | Out-Null
-            Remove-Item $CurrentHost\*.tar.gz -Force
-            & $using:SevenZip x "$CurrentHost\*.tar" "-o$CurrentHost" 2>&1 | Out-Null
-            Remove-Item $CurrentHost\*.tar -Force
-            # adjust modules as needed
-            & $using:Kape --msource $CurrentHost --mdest $mdest --mflush --module !EZParser --mef csv 2>&1 | Out-Null
-            Remove-Item $CurrentHost -Recurse -Force
-        }
-    } -ThrottleLimit $cores
-}
-
-function Extract-KapeTriage {
-    Get-ChildItem -Path $KtSource -Filter '*.zip' -Recurse | ForEach-Object -Parallel {
-        $mdest = $using:Destination + $_.BaseName.Split('_')[-1]
-        # skip previously processed triage
-        if (Test-Path -Path $mdest) {
-            Write-Host $mdest "already exists... skipping triage package."
-        }
-        else {
-            Write-Host "Processing" $_.FullName
-            Expand-Archive -Path $_ -DestinationPath $using:TempDest -Force
-            $vhdx = $using:TempDest + $_.BaseName + '.vhdx'
-            $msource = Mount-VHD -Path $vhdx -Passthru | Get-Disk | Get-Partition | Get-Volume
-            $msource = $msource.DriveLetter + ":"
-            # adjust modules as needed
-            & $using:Kape --msource $msource --mdest $mdest --mflush --module !EZParser --mef csv 2>&1 | Out-Null
-            Dismount-VHD -Path $vhdx
-            Remove-Item -Path $vhdx
-        }
-    } -ThrottleLimit $cores
-}
-
-# main ====
-Write-Host "`nProcess-Triage by Marc Padilla`n"
-
-# adjust these as necessary
-$TempDest = 'C:\Windows\Temp\crm114\'
+# modify if necessary
+$TempDest = 'C:\Windows\Temp\angrydome\'
 $SevenZip = 'C:\Program Files\7-Zip\7z.exe'
 $Kape = 'C:\tools\kape\kape.exe'
 
-# get core count
-$cores = Get-CimInstance -Class CIM_Processor | Select -ExpandProperty NumberOfCores
-$cores = [int]$cores
+Write-Host "`nProcess-Triage by Marc Padilla`n"
 
-# check for lol slow lab vm
 if ((Get-CimInstance -Class Win32_ComputerSystem | Select -ExpandProperty Domain) -eq 'cyber.local') {
-    Write-Host 'This is a Cyber Lab VM. Reducing -Parallel to 2.'`n
-    $cores = 2
+    $Cores = 2 # lab vms are lol slow
+}
+else {
+    $Cores = Get-CimInstance -Class CIM_Processor | Select -ExpandProperty NumberOfCores
+    $Cores = [int]$Cores
 }
 
-# concatenate "\" due to my ignorance / forgetfulness
+# concatenate a trailing \ if necessary
 if ($Destination[-1] -ne '\') {
     $Destination += '\'
 }
 
-# processes kapetriage packages first -- adjust as needed
-$KtSource = $Source + "\KapeTriage\"
-Extract-KapeTriage
-$DtSource = $Source + "\DupTriage\"
-Extract-DupTriage
+$Location = Get-Location
+
+# create TriagePackage array
+Set-Location -Path $Source
+$TriageDirectories = "DupTriage\", "KapeTriage\"
+$TriagePackages = Get-ChildItem -Path $TriageDirectories -Recurse | Where-Object -FilterScript {$_.FullName -match ".7z|.zip"} | Select FullName,BaseName,LastWriteTime
+foreach ($file in $TriagePackages) {
+    $file | Add-Member -MemberType NoteProperty -Name "HostName" -Value $file.FullName.Split('_DupTriage.7z')[0].Split('.zip')[0].Split('_')[-1]
+    $file | Add-Member -MemberType NoteProperty -Name "TriageType" -Value $file.FullName.Split('\')[2]
+    $file | Add-Member -MemberType NoteProperty -Name "Processed" -Value (Test-Path -Path ($Destination + $file.HostName + "_" + $file.LastWriteTime.ToString("yyyy-MM-ddTHHmmss")))
+}
+$TriagePackages = $TriagePackages | Sort-Object LastWriteTime -Descending
+
+if (($TriagePackages | Measure-Object).Count -eq 0) {
+    Write-Output "Good news, everyone! Bad news. No triage packages found. Are you looking in the right place?`n"
+    Set-Location $Location
+    Exit
+}
+
+# get totals, convey what will be processed to user
+$Total = ($TriagePackages | Measure-Object).Count
+$TriagePackages = $TriagePackages | Where-Object -FilterScript {$_.Processed -eq $False}
+$New = ($TriagePackages | Measure-Object).Count
+
+if ($Total -eq $New) {
+    Write-Output "Located $Total triage packages -- all of which will be processed.`n"
+}
+elseif ($New -eq 0) {
+    Write-Output "No new triage packages for processing. Exiting.`n"
+    Set-Location $Location
+    Exit
+}
+else {
+    Write-Output "$New new triage package(s) have been located for processing.`n"
+}
+
+# process
+$TriagePackages | ForEach-Object -Parallel {
+    $mdest = $using:Destination + $_.HostName + "_" + $_.LastWriteTime.ToString("yyyy-MM-ddTHHmmss")
+    Write-Host "Processing" $_.FullName
+    # decompress/unarchive, mount, etc.
+    if ($_.TriageType -eq 'DupTriage') {
+        $msource = $using:TempDest + $_.HostName
+        # decompress, decompress... and decompress
+        & $using:SevenZip x $_.FullName "-o$msource" 2>&1 | Out-Null
+        & $using:SevenZip x "$msource\*.tar.gz" "-o$msource" 2>&1 | Out-Null
+        Remove-Item $msource\*.tar.gz -Force
+        & $using:SevenZip x "$msource\*.tar" "-o$msource" 2>&1 | Out-Null
+        Remove-Item $msource\*.tar -Force
+    }
+    if ($_.TriageType -eq 'KapeTriage') {
+        Expand-Archive -Path $_.FullName -DestinationPath $using:TempDest -Force
+        $vhdx = $using:TempDest + $_.BaseName + '.vhdx'
+        $msource = Mount-VHD -Path $vhdx -Passthru | Get-Disk | Get-Partition | Get-Volume
+        $msource = $msource.DriveLetter + ":"
+    }
+    # run kape
+    & $using:Kape --msource $msource --mdest $mdest --mflush --module !EZParser --mef csv 2>&1 | Out-Null
+    # clean-up
+    if ($_.TriageType -eq 'DupTriage') {
+        Remove-Item $msource -Recurse -Force
+    }
+    if ($_.TriageType -eq 'KapeTriage') {
+        Dismount-VHD -Path $vhdx
+        Remove-Item -Path $vhdx
+    }
+} -ThrottleLimit $Cores
 
 # remove temporary directory if it even exists
 if (Test-Path -Path $TempDest) {
     Remove-Item $TempDest -Recurse -Force
 }
 
-Write-Host "`nProcess-Trigage Complete.`n"
+Set-Location $Location
 
-pause
+Write-Host "`nProcess-Triage Complete. Exiting.`n"
+
+Exit
