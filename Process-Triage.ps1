@@ -22,7 +22,7 @@ $TempDest = 'C:\Windows\Temp\angrydome\'
 $SevenZip = 'C:\Program Files\7-Zip\7z.exe'
 $Kape = 'C:\tools\kape\kape.exe'
 
-Write-Host "`nProcess-Triage by Marc Padilla`n"
+Write-Host "`nProcess-Triage by Marc Padilla | GitHub: https://github.com/marcpadilla | Email: marc@padil.la`n"
 
 if ((Get-CimInstance -Class Win32_ComputerSystem | Select -ExpandProperty Domain) -eq 'cyber.local') {
     $Cores = 2 # lab vms are lol slow
@@ -73,7 +73,7 @@ else {
     Write-Output "$New new triage package(s) have been located for processing.`n"
 }
 
-# process
+# processing
 $TriagePackages | ForEach-Object -Parallel {
     $mdest = $using:Destination + $_.HostName + "_" + $_.LastWriteTime.ToString("yyyy-MM-ddTHHmmss")
     Write-Host "Processing" $_.FullName
