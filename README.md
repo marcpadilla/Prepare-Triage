@@ -1,6 +1,6 @@
 # Process-Triage
 
-Takes a matter directory containing DupTriage and/or KapeTriage packages and processes them with KAPE.
+Takes a matter Splunk share containing DupTriage and/or KapeTriage packages and processes them with KAPE.
 
 If multiple triage packages for a single host exist Process-Triage will process them all. This behavior can be modified to meet your needs. Process-Triage will detect if a triage package has already been processed and skip it by default. This encourages you to run Process-Triage throughout an engagement.
 
