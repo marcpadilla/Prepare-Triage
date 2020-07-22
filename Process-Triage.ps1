@@ -4,8 +4,7 @@ Takes a directory containing triage packages and processes them with KAPE.
 .EXAMPLE
 .\Process-Triage.ps1 -Source S:\matter\ -Destination C:\mpwd\kape\
 .NOTES
-Author: Marc Padilla
-E-Mail: marc@padil.la
+Author: Marc Padilla (marc@padil.la)
 GitHub: https://github.com/marcpadilla/Process-Triage
 #>
 
@@ -22,7 +21,7 @@ $TempDest = 'C:\Windows\Temp\angrydome\'
 $SevenZip = 'C:\Program Files\7-Zip\7z.exe'
 $Kape = 'C:\tools\kape\kape.exe'
 
-Write-Host "`nProcess-Triage by Marc Padilla | GitHub: https://github.com/marcpadilla | Email: marc@padil.la`n"
+Write-Host "`nProcess-Triage by Marc Padilla (marc@padil.la)`n"
 
 if ((Get-CimInstance -Class Win32_ComputerSystem | Select -ExpandProperty Domain) -eq 'cyber.local') {
     $Cores = 2 # lab vms are lol slow
