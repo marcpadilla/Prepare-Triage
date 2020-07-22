@@ -6,7 +6,7 @@ Takes a directory containing triage packages and processes them with KAPE.
 .NOTES
 Author: Marc Padilla
 E-Mail: marc@padil.la
-GitHub: https://github.com/marcpadilla
+GitHub: https://github.com/marcpadilla/Process-Triage
 #>
 
 [CmdletBinding()]
@@ -93,7 +93,7 @@ $TriagePackages | ForEach-Object -Parallel {
         $msource = Mount-VHD -Path $vhdx -Passthru | Get-Disk | Get-Partition | Get-Volume
         $msource = $msource.DriveLetter + ":"
     }
-    # run kape
+    # run kape, adjust modules as necessary
     & $using:Kape --msource $msource --mdest $mdest --mflush --module !EZParser --mef csv 2>&1 | Out-Null
     # clean-up
     if ($_.TriageType -eq 'DupTriage') {
