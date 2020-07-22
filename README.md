@@ -1,6 +1,6 @@
 # Process-Triage
 
-Takes a directory containing archived DupTriage and/or KapeTriage packages and processes them with KAPE.
+Takes a directory containing DupTriage and/or KapeTriage packages and processes them with KAPE.
 
 Process-Triage processes all triage packages. This is my personal preference and can be modified to meet your needs. Process-Triage will detect if a triage package has already been processed and will skip it. You can re-run Process-Triage as new triage packages are acquired throughout a matter.
 
