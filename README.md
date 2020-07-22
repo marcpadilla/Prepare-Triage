@@ -10,9 +10,11 @@ Process-Triage utilizes the following software:
 
 - **7-Zip** [https://www.7-zip.org/](https://www.7-zip.org/)
 - **KAPE** (direct download) [https://s3.amazonaws.com/cyb-us-prd-kape/kape.zip](https://s3.amazonaws.com/cyb-us-prd-kape/kape.zip)
-- **PowerShell** (version 7+) [https://github.com/PowerShell/powershell/releases](https://github.com/PowerShell/powershell/releases)
+- **PowerShell**\* [https://github.com/PowerShell/powershell/releases](https://github.com/PowerShell/powershell/releases)
 
 Process-Triage expects the full path of 7-Zip to be `C:\Program Files\7-Zip\7z.exe` and the full path of KAPE to be `C:\tools\KAPE\kape.exe`. Modify the Process-Triage script if either location is different on your system.
+
+*\* version 7 or above is required.*
 
 ## Additional Notes
 
