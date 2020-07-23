@@ -43,7 +43,13 @@ Set-Location -Path $Source
 $TriageDirectories = "DupTriage\", "KapeTriage\"
 $TriagePackages = Get-ChildItem -Path $TriageDirectories -Recurse | Where-Object -FilterScript {$_.FullName -match ".7z|.zip"} | Select FullName,BaseName,LastWriteTime
 foreach ($file in $TriagePackages) {
-    $file | Add-Member -MemberType NoteProperty -Name "HostName" -Value $file.FullName.Split('_DupTriage.7z')[0].Split('.zip')[0].Split('_')[-1]
+    $UnderscoreCount = ($file.BaseName.Split('_DupTriage.7z')[0].Split('.zip')[0].ToCharArray() -eq "_").count # some hostnames contain "_" and its obnoxious
+    if ($UnderscoreCount -gt 2) {
+        $file | Add-Member -MemberType NoteProperty -Name "HostName" -Value ($file.BaseName.Split('_DupTriage')[0].Split('.zip')[0].Split('_')[1..$UnderscoreCount] -join "_")
+    }
+    else {
+        $file | Add-Member -MemberType NoteProperty -Name "HostName" -Value $file.BaseName.Split('_DupTriage')[0].Split('.zip')[0].Split('_')[-1]
+    }
     $file | Add-Member -MemberType NoteProperty -Name "TriageType" -Value $file.FullName.Split('\')[2]
     $file | Add-Member -MemberType NoteProperty -Name "Processed" -Value (Test-Path -Path ($Destination + $file.HostName + "_" + $file.LastWriteTime.ToString("yyyy-MM-ddTHHmmss")))
 }
