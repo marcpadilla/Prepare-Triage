@@ -84,7 +84,7 @@ elseif ($NewTriagePackageCount -eq 0) {
     Exit
 }
 else {
-    Write-Output "$New new triage package(s) have been located for processing.`n"
+    Write-Output "$NewTriagePackageCount new triage package(s) have been located for processing.`n"
 }
 
 # processing
