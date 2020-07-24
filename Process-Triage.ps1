@@ -18,21 +18,20 @@ param(
     [string]$Destination
     )
 
+Write-Host "`nProcess-Triage by Marc Padilla (marc@padil.la)`n"
+
 # modify if necessary
 $TempDest = 'C:\Windows\Temp\angrydome\'
 $SevenZip = 'C:\Program Files\7-Zip\7z.exe'
 $Kape = 'C:\tools\kape\kape.exe'
 $Location = Get-Location
 
-Write-Host "`nProcess-Triage by Marc Padilla (marc@padil.la)`n"
-
-# check for lol slow cyberlab vm
-if ((Get-CimInstance -Class Win32_ComputerSystem | Select -ExpandProperty Domain) -eq 'cyber.local') {
-    $Cores = 2
-}
-else {
-    $Cores = Get-CimInstance -Class CIM_Processor | Select -ExpandProperty NumberOfCores
-    $Cores = [int]$Cores
+# check for specified location of required programs
+foreach ($item in $SevenZip, $Kape) {
+    if (!(Test-Path -Path $item)) {
+        Write-Output "$item does not exist. Modify the Process-Triage script to set a custom location. Exiting.`n"
+        Exit
+    }
 }
 
 # concatenate a trailing \ if necessary
@@ -53,11 +52,12 @@ foreach ($file in $TriagePackages) {
         $file | Add-Member -MemberType NoteProperty -Name "HostName" -Value $file.BaseName.Split('_DupTriage')[0].Split('.zip')[0].Split('_')[-1]
     }
     $file | Add-Member -MemberType NoteProperty -Name "TriageType" -Value $file.FullName.Split('\')[2]
+    $file | Add-Member -MemberType NoteProperty -Name "Incomplete" -Value ($file.FullName.Split('_')[-1] -eq 'INCOMPLETE.zip')
     $file | Add-Member -MemberType NoteProperty -Name "Processed" -Value (Test-Path -Path ($Destination + $file.HostName + "_" + $file.LastWriteTime.ToString("yyyy-MM-ddTHHmmss")))
 }
 $TriagePackages = $TriagePackages | Sort-Object LastWriteTime -Descending
 
-# if no triage pagkages are found just save everyone some time
+# no triage packages found
 $TriagePackageCount = ($TriagePackages | Measure-Object).Count
 if ($TriagePackageCount -eq 0) {
     Write-Output "Good news, everyone! Bad news. No triage packages found. Are you looking in the right place?`n"
@@ -66,7 +66,7 @@ if ($TriagePackageCount -eq 0) {
 }
 
 # check for incomplete triage packages
-$TriagePackages = $TriagePackages | Where-Object -FilterScript {$_.FullName.Split('_')[-1] -ne 'INCOMPLETE.zip'}
+$TriagePackages = $TriagePackages | Where-Object -FilterScript {$_.Incomplete -eq $False}
 $IncompleteTriagePackageCount = $TriagePackageCount - ($TriagePackages | Measure-Object).Count
 if ($IncompleteTriagePackageCount -ne 0) {
     Write-Output "$IncompleteTriagePackageCount triage packages are marked as INCOMPLETE. They will be skipped.`n"
@@ -86,6 +86,15 @@ elseif ($NewTriagePackageCount -eq 0) {
 }
 else {
     Write-Output "$NewTriagePackageCount new triage package(s) have been located for processing.`n"
+}
+
+# check for lol slow cyberlab vm
+if ((Get-CimInstance -Class Win32_ComputerSystem | Select -ExpandProperty Domain) -eq 'cyber.local') {
+    $Cores = 2
+}
+else {
+    $Cores = Get-CimInstance -Class CIM_Processor | Select -ExpandProperty NumberOfCores
+    $Cores = [int]$Cores
 }
 
 # processing
