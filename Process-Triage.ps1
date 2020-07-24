@@ -43,7 +43,7 @@ Set-Location -Path $Source
 $TriageDirectories = "DupTriage\", "KapeTriage\"
 $TriagePackages = Get-ChildItem -Path $TriageDirectories -Recurse | Where-Object -FilterScript {$_.FullName -match ".7z|.zip"} | Select FullName,BaseName,LastWriteTime
 foreach ($file in $TriagePackages) {
-    $UnderscoreCount = ($file.BaseName.Split('_DupTriage.7z')[0].Split('.zip')[0].ToCharArray() -eq "_").count # some hostnames contain "_" and its obnoxious
+    $UnderscoreCount = ($file.BaseName.Split('_DupTriage.7z')[0].Split('.zip')[0].ToCharArray() -eq "_").count # some windows hostnames contain "_" due to bootcamp and its obnoxious
     if ($UnderscoreCount -gt 2) {
         $file | Add-Member -MemberType NoteProperty -Name "HostName" -Value ($file.BaseName.Split('_DupTriage')[0].Split('.zip')[0].Split('_')[1..$UnderscoreCount] -join "_")
     }
@@ -55,21 +55,30 @@ foreach ($file in $TriagePackages) {
 }
 $TriagePackages = $TriagePackages | Sort-Object LastWriteTime -Descending
 
-if (($TriagePackages | Measure-Object).Count -eq 0) {
+$TriagePackageCount = ($TriagePackages | Measure-Object).Count
+
+if ($TriagePackageCount -eq 0) {
     Write-Output "Good news, everyone! Bad news. No triage packages found. Are you looking in the right place?`n"
     Set-Location $Location
     Exit
 }
 
-# get totals, convey what will be processed to user
-$Total = ($TriagePackages | Measure-Object).Count
-$TriagePackages = $TriagePackages | Where-Object -FilterScript {$_.Processed -eq $False}
-$New = ($TriagePackages | Measure-Object).Count
+# check for incomplete triage packages
+$TriagePackages = $TriagePackages | Where-Object -FilterScript {$_.FullName.Split('_')[-1] -ne 'INCOMPLETE.zip'}
+$IncompleteTriagePackageCount = $TriagePackageCount - ($TriagePackages | Measure-Object).Count
+if ($IncompleteTriagePackageCount -ne 0) {
+    Write-Output "$IncompleteTriagePackageCount triage packages are marked as INCOMPLETE. They will be skipped.`n"
+    $TriagePackageCount = ($TriagePackages | Measure-Object).Count
+}
 
-if ($Total -eq $New) {
+# get totals, convey what will be processed to user
+$TriagePackages = $TriagePackages | Where-Object -FilterScript {$_.Processed -eq $False}
+$NewTriagePackageCount = ($TriagePackages | Measure-Object).Count
+
+if ($TriagePackageCount -eq $NewTriagePackageCount) {
     Write-Output "Located $Total triage packages -- all of which will be processed.`n"
 }
-elseif ($New -eq 0) {
+elseif ($NewTriagePackageCount -eq 0) {
     Write-Output "No new triage packages for processing. Exiting.`n"
     Set-Location $Location
     Exit
