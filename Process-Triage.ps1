@@ -8,6 +8,8 @@ Author: Marc Padilla (marc@padil.la)
 GitHub: https://github.com/marcpadilla/Process-Triage
 #>
 
+#Requires -RunAsAdministrator
+
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)]
@@ -20,11 +22,13 @@ param(
 $TempDest = 'C:\Windows\Temp\angrydome\'
 $SevenZip = 'C:\Program Files\7-Zip\7z.exe'
 $Kape = 'C:\tools\kape\kape.exe'
+$Location = Get-Location
 
 Write-Host "`nProcess-Triage by Marc Padilla (marc@padil.la)`n"
 
+# check for lol slow cyberlab vm
 if ((Get-CimInstance -Class Win32_ComputerSystem | Select -ExpandProperty Domain) -eq 'cyber.local') {
-    $Cores = 2 # lab vms are lol slow
+    $Cores = 2
 }
 else {
     $Cores = Get-CimInstance -Class CIM_Processor | Select -ExpandProperty NumberOfCores
@@ -36,9 +40,7 @@ if ($Destination[-1] -ne '\') {
     $Destination += '\'
 }
 
-$Location = Get-Location
-
-# create TriagePackage array
+# create array with useful members
 Set-Location -Path $Source
 $TriageDirectories = "DupTriage\", "KapeTriage\"
 $TriagePackages = Get-ChildItem -Path $TriageDirectories -Recurse | Where-Object -FilterScript {$_.FullName -match ".7z|.zip"} | Select FullName,BaseName,LastWriteTime
@@ -55,8 +57,8 @@ foreach ($file in $TriagePackages) {
 }
 $TriagePackages = $TriagePackages | Sort-Object LastWriteTime -Descending
 
+# if no triage pagkages are found just save everyone some time
 $TriagePackageCount = ($TriagePackages | Measure-Object).Count
-
 if ($TriagePackageCount -eq 0) {
     Write-Output "Good news, everyone! Bad news. No triage packages found. Are you looking in the right place?`n"
     Set-Location $Location
@@ -71,10 +73,9 @@ if ($IncompleteTriagePackageCount -ne 0) {
     $TriagePackageCount = ($TriagePackages | Measure-Object).Count
 }
 
-# get totals, convey what will be processed to user
+# get totals and convey what will be processed to user
 $TriagePackages = $TriagePackages | Where-Object -FilterScript {$_.Processed -eq $False}
 $NewTriagePackageCount = ($TriagePackages | Measure-Object).Count
-
 if ($TriagePackageCount -eq $NewTriagePackageCount) {
     Write-Output "Located $Total triage packages -- all of which will be processed.`n"
 }
@@ -125,7 +126,6 @@ if (Test-Path -Path $TempDest) {
 }
 
 Set-Location $Location
-
 Write-Host "`nProcess-Triage Complete. Exiting.`n"
 
 Exit
