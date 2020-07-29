@@ -26,10 +26,10 @@ $SevenZip = 'C:\Program Files\7-Zip\7z.exe'
 $Kape = 'C:\tools\kape\kape.exe'
 $Location = Get-Location
 
-# check for specified location of required programs
-foreach ($item in $SevenZip, $Kape) {
+# check data source and required programs
+foreach ($item in $SevenZip, $Kape, $Source) {
     if (!(Test-Path -Path $item)) {
-        Write-Output "$item does not exist. Modify the Process-Triage script to set a custom location. Exiting.`n"
+        Write-Output "$item does not exist. Exiting.`n"
         Exit
     }
 }
@@ -77,7 +77,7 @@ if ($IncompleteTriagePackageCount -ne 0) {
 $TriagePackages = $TriagePackages | Where-Object -FilterScript {$_.Processed -eq $False}
 $NewTriagePackageCount = ($TriagePackages | Measure-Object).Count
 if ($TriagePackageCount -eq $NewTriagePackageCount) {
-    Write-Output "Located $Total triage packages -- all of which will be processed.`n"
+    Write-Output "Located $TriagePackageCount triage packages -- all of which will be processed.`n"
 }
 elseif ($NewTriagePackageCount -eq 0) {
     Write-Output "No new triage packages for processing. Exiting.`n"
