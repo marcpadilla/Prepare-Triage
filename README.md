@@ -1,6 +1,6 @@
 # Process-Triage
 
-Takes a matter Splunk share containing DupTriage and/or KapeTriage packages and processes them with KAPE.
+Takes a matter share containing DupTriage and/or KapeTriage packages and processes them with Kroll Artifact Parser and Extractor (KAPE) for streamlined analysis.
 
 If multiple triage packages for a single host exist Process-Triage will process them all. Incomplete triage packages are skipped and a message is printed to screen. Process-Triage will detect if a triage package has already been processed and skip it by default. This encourages you to run Process-Triage throughout an engagement.
 
