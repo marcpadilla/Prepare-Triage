@@ -18,7 +18,7 @@ Process-Triage utilizes the following software:
 
 If the software location differs on your system, modify the Process-Triage script to reflect the full path.
 
-* Version 7.x or above.
+\* Version 7.x or above.
 
 ## Additional Notes
 
