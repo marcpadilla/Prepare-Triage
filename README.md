@@ -8,7 +8,7 @@ If multiple triage packages for a single host exist Process-Triage will process 
 
 Process-Triage utilizes the following software:
 
-|Name|Download URL|Expected Location|Note|
+|Name|URL|Expected Location|Note|
 |----|----|----|----|
 |7-Zip|[https://www.7-zip.org/download.html](https://www.7-zip.org/download.html)|`C:\Program Files\7-Zip\7z.exe`||
 |DeepBlueCLI|[https://github.com/sans-blue-team/DeepBlueCLI](https://github.com/sans-blue-team/DeepBlueCLI)|`C:\tools\DeepBlueCLI\DeepBlue.ps1`||
