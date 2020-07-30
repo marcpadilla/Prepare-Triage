@@ -9,10 +9,16 @@ If multiple triage packages for a single host exist Process-Triage will process 
 Process-Triage utilizes the following software:
 
 - **7-Zip** [https://www.7-zip.org/](https://www.7-zip.org/)
+- **DeepBlueCLI** [https://github.com/sans-blue-team/DeepBlueCLI](https://github.com/sans-blue-team/DeepBlueCLI)
 - **KAPE** (direct download) [https://s3.amazonaws.com/cyb-us-prd-kape/kape.zip](https://s3.amazonaws.com/cyb-us-prd-kape/kape.zip)
 - **PowerShell**\* [https://github.com/PowerShell/powershell/releases](https://github.com/PowerShell/powershell/releases)
 
-Process-Triage expects the full path of 7-Zip to be `C:\Program Files\7-Zip\7z.exe` and the full path of KAPE to be `C:\tools\KAPE\kape.exe`. Modify the Process-Triage script if either location is different on your system.
+|Name|URL|Expected Location|
+|----|----|----|
+|7-Zip|[https://www.7-zip.org/](https://www.7-zip.org/)|`C:\Program Files\7-Zip\7z.exe`|
+|DeepBlueCLI|[https://github.com/sans-blue-team/DeepBlueCLI](https://github.com/sans-blue-team/DeepBlueCLI)|`C:\tools\KAPE\kape.exe`|
+|KAPE|[https://s3.amazonaws.com/cyb-us-prd-kape/kape.zip](https://s3.amazonaws.com/cyb-us-prd-kape/kape.zip)|`C:\tools\KAPE\kape.exe`|
+|PowerShell*|[https://github.com/PowerShell/powershell/releases](https://github.com/PowerShell/powershell/releases)||
 
 *\* Version 7.x or above is required.*
 
