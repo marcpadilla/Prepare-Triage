@@ -8,11 +8,6 @@ If multiple triage packages for a single host exist Process-Triage will process 
 
 Process-Triage utilizes the following software:
 
-- **7-Zip** [https://www.7-zip.org/](https://www.7-zip.org/)
-- **DeepBlueCLI** [https://github.com/sans-blue-team/DeepBlueCLI](https://github.com/sans-blue-team/DeepBlueCLI)
-- **KAPE** (direct download) [https://s3.amazonaws.com/cyb-us-prd-kape/kape.zip](https://s3.amazonaws.com/cyb-us-prd-kape/kape.zip)
-- **PowerShell**\* [https://github.com/PowerShell/powershell/releases](https://github.com/PowerShell/powershell/releases)
-
 |Name|URL|Expected Location|
 |----|----|----|
 |7-Zip|[https://www.7-zip.org/](https://www.7-zip.org/)|`C:\Program Files\7-Zip\7z.exe`|
