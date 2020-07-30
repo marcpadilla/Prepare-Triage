@@ -12,7 +12,7 @@ Process-Triage utilizes the following software:
 |----|----|----|----|
 |7-Zip|[https://www.7-zip.org/download.html](https://www.7-zip.org/download.html)|`C:\Program Files\7-Zip\7z.exe`||
 |DeepBlueCLI|[https://github.com/sans-blue-team/DeepBlueCLI](https://github.com/sans-blue-team/DeepBlueCLI)|`C:\tools\DeepBlueCLI\DeepBlue.ps1`||
-|Loki|[https://github.com/Neo23x0/Loki/releases](https://github.com/Neo23x0/Loki/releases)||
+|LOKI|[https://github.com/Neo23x0/Loki/releases](https://github.com/Neo23x0/Loki/releases)|`C:\tools\KAPE\kape.exe`|
 |KAPE|[https://s3.amazonaws.com/cyb-us-prd-kape/kape.zip](https://s3.amazonaws.com/cyb-us-prd-kape/kape.zip)|`C:\tools\KAPE\kape.exe`||
 |PowerShell|[https://github.com/PowerShell/powershell/releases](https://github.com/PowerShell/powershell/releases)||Version 7.x or above.|
 
