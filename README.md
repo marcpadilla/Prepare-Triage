@@ -15,6 +15,8 @@ Process-Triage utilizes the following software:
 |KAPE|[https://s3.amazonaws.com/cyb-us-prd-kape/kape.zip](https://s3.amazonaws.com/cyb-us-prd-kape/kape.zip)|`C:\tools\KAPE\kape.exe`||
 |PowerShell|[https://github.com/PowerShell/powershell/releases](https://github.com/PowerShell/powershell/releases)||Version 7.x or above.|
 
+If the software location differs on your system, modify the Process-Triage script to reflect the full path.
+
 ## Additional Notes
 
 None. If you are having trouble you can email me at [marc@padil.la](mailto:marc@padil.la).
