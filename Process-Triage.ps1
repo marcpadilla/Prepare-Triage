@@ -54,33 +54,37 @@ foreach ($file in $TriagePackages) {
     $file | Add-Member -MemberType NoteProperty -Name "TriageType" -Value $file.FullName.Split('\')[2]
     $file | Add-Member -MemberType NoteProperty -Name "Incomplete" -Value ($file.FullName.Split('_')[-1] -eq 'INCOMPLETE.zip')
     $file | Add-Member -MemberType NoteProperty -Name "Processed" -Value (Test-Path -Path ($Destination + $file.HostName + "_" + $file.LastWriteTime.ToString("yyyy-MM-ddTHHmmss")))
+    $file | Add-Member -MemberType NoteProperty -Name "SensorId" -Value $file.FullName.Split('\')[3].Split('_')[0]
 }
 $TriagePackages = $TriagePackages | Sort-Object LastWriteTime -Descending
 
-# no triage packages found
 $TriagePackageCount = ($TriagePackages | Measure-Object).Count
+
+# check for zero triage packages found
 if ($TriagePackageCount -eq 0) {
     Write-Output "Good news, everyone! Bad news. No triage packages found. Are you looking in the right place?`n"
     Set-Location $Location
     Exit
 }
 
-# check for incomplete triage packages
+# filter out incomplete triage packages
 $TriagePackages = $TriagePackages | Where-Object -FilterScript {$_.Incomplete -eq $False}
+# check for difference
 $IncompleteTriagePackageCount = $TriagePackageCount - ($TriagePackages | Measure-Object).Count
 if ($IncompleteTriagePackageCount -ne 0) {
-    Write-Output "$IncompleteTriagePackageCount triage packages are marked as INCOMPLETE. They will be skipped.`n"
+    Write-Output "$IncompleteTriagePackageCount INCOMPLETE triage package(s) have been located and will be skipped.`n"
     $TriagePackageCount = ($TriagePackages | Measure-Object).Count
 }
 
-# get totals and convey what will be processed to user
+# filter out previously processed triage packages
 $TriagePackages = $TriagePackages | Where-Object -FilterScript {$_.Processed -eq $False}
+# check for difference
 $NewTriagePackageCount = ($TriagePackages | Measure-Object).Count
 if ($TriagePackageCount -eq $NewTriagePackageCount) {
-    Write-Output "Located $TriagePackageCount triage packages -- all of which will be processed.`n"
+    Write-Output "$NewTriagePackageCount triage package(s) have been located and will be processed.`n"
 }
 elseif ($NewTriagePackageCount -eq 0) {
-    Write-Output "No new triage packages for processing. Exiting.`n"
+    Write-Output "No new triage packages located for processing. Exiting.`n"
     Set-Location $Location
     Exit
 }
@@ -99,7 +103,7 @@ else {
 
 # processing
 $TriagePackages | ForEach-Object -Parallel {
-    $mdest = $using:Destination + $_.HostName + "_" + $_.LastWriteTime.ToString("yyyy-MM-ddTHHmmss")
+    $mdest = $using:Destination + $_.SensorId + "_" + $_.HostName + "_" + $_.LastWriteTime.ToString("yyyy-MM-ddTHHmmss")
     Write-Host "Processing" $_.FullName
     # decompress/unarchive, mount, etc.
     if ($_.TriageType -eq 'DupTriage') {
