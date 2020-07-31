@@ -94,7 +94,7 @@ else {
 }
 
 # check for vmware guest
-if (Get-CimInstance -Class Win32_ComputerSystem | Select -ExpandProperty Model).Split(' ')[0] -eq "VMware" {
+if ((Get-CimInstance -Class Win32_ComputerSystem | Select -ExpandProperty Model).Split(' ')[0] -eq "VMware") {
     $Cores = 2 # some tools shred vmware guests -- limiting -Parallel to 2 by default
 }
 else {
