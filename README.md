@@ -18,7 +18,9 @@ If the software location differs on your system, modify the Process-Triage scrip
 
 ## Example
 
-`C:\tools\Process-Triage.ps1 -Source d:\example\ -Destination c:\mpwd\example\kape\`
+```PowerShell
+C:\tools\Process-Triage.ps1 -Source d:\example\ -Destination c:\mpwd\example\kape\
+```
 
 ## Additional Notes
 
