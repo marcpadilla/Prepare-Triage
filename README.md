@@ -16,6 +16,10 @@ Process-Triage utilizes the following software:
 
 If the software location differs on your system, modify the Process-Triage script to reflect the full path.
 
+## Example
+
+`C:\tools\Process-Triage.ps1 -Source d:\example\ -Destination c:\mpwd\example\kape\`
+
 ## Additional Notes
 
 None. If you are having trouble you can email me at [marc@padil.la](mailto:marc@padil.la).
