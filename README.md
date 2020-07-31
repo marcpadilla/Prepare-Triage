@@ -19,7 +19,7 @@ If the software location differs on your system, modify the Process-Triage scrip
 ## Example
 
 ```PowerShell
-C:\tools\Process-Triage.ps1 -Source d:\example\ -Destination c:\mpwd\example\kape\
+C:\tools\Process-Triage.ps1 -Source D:\Matters\ClientName\ -Destination C:\mpwd\ClientName\KAPE\
 ```
 
 ## Additional Notes
