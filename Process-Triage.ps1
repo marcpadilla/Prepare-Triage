@@ -2,7 +2,7 @@
 .SYNOPSIS
 Takes a directory containing DupTriage and/or KapeTriage packages and processes them.
 .EXAMPLE
-.\Process-Triage.ps1 -Source X:\directory\ -Destination C:\mp\kape\
+C:\tools\Process-Triage.ps1 -Source D:\ClientName\ -Destination C:\WorkingDir\ClientName\KAPE\
 .NOTES
 Author: Marc Padilla (marc@padil.la)
 GitHub: https://github.com/marcpadilla/Process-Triage
