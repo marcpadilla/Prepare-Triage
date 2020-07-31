@@ -59,27 +59,23 @@ foreach ($file in $TriagePackages) {
 }
 $TriagePackages = $TriagePackages | Sort-Object LastWriteTime -Descending
 
+# get a triage package count and determine if packages should be skipped
 $TriagePackageCount = ($TriagePackages | Measure-Object).Count
-
-# check for zero triage packages found
+# check for zero triage packages
 if ($TriagePackageCount -eq 0) {
     Write-Output "Good news, everyone! Bad news. No triage packages found. Are you looking in the right place?`n"
     Set-Location $Location
     Exit
 }
-
-# filter out incomplete triage packages
+# filter out incomplete triage packages and check for difference
 $TriagePackages = $TriagePackages | Where-Object -FilterScript {$_.Incomplete -eq $False}
-# check for difference
 $IncompleteTriagePackageCount = $TriagePackageCount - ($TriagePackages | Measure-Object).Count
 if ($IncompleteTriagePackageCount -ne 0) {
     Write-Output "$IncompleteTriagePackageCount INCOMPLETE triage package(s) have been located and will be skipped.`n"
     $TriagePackageCount = ($TriagePackages | Measure-Object).Count
 }
-
 # filter out previously processed triage packages
 $TriagePackages = $TriagePackages | Where-Object -FilterScript {$_.Processed -eq $False}
-# check for difference
 $NewTriagePackageCount = ($TriagePackages | Measure-Object).Count
 if ($TriagePackageCount -eq $NewTriagePackageCount) {
     Write-Output "$NewTriagePackageCount triage package(s) have been located and will be processed.`n"
@@ -94,7 +90,7 @@ else {
 }
 
 # check for vmware guest
-if ((Get-CimInstance -Class Win32_ComputerSystem | Select -ExpandProperty Model).Split(' ')[0] -eq "VMware") {
+if ((Get-CimInstance -Class Win32_ComputerSystem | Select -ExpandProperty Model).Split(" ")[0] -eq "VMware") {
     $Cores = 2 # some tools shred vmware guests -- limiting -Parallel to 2 by default
 }
 else {
