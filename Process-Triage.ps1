@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-Takes a directory containing triage packages and processes them with KAPE.
+Takes a directory containing DupTriage and/or KapeTriage packages and processes them.
 .EXAMPLE
 .\Process-Triage.ps1 -Source X:\directory\ -Destination C:\mp\kape\
 .NOTES
@@ -23,12 +23,11 @@ Write-Host "`nProcess-Triage by Marc Padilla (marc@padil.la)`n"
 # modify if necessary
 $TempDest = "C:\Windows\Temp\angrydome\"
 $SevenZip = "C:\Program Files\7-Zip\7z.exe"
-$DeepBlueCli = "C:\tools\DeepBlueCli\DeepBlue.ps1"
 $Kape = "C:\tools\kape\kape.exe"
 $Location = Get-Location
 
 # check data source and required programs
-foreach ($item in $SevenZip, $DeepBlueCli, $Kape, $Source) {
+foreach ($item in $SevenZip, $Kape, $Source) {
     if (!(Test-Path -Path $item)) {
         Write-Output "$item does not exist. Exiting.`n"
         Exit
