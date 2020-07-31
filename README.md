@@ -12,7 +12,7 @@ Process-Triage utilizes the following software:
 |----|----|----|
 |7-Zip|[Download](https://www.7-zip.org/download.html)|Expected Location: `C:\Program Files\7-Zip\7z.exe`|
 |KAPE|[Download](https://www.kroll.com/en/services/cyber-risk/investigate-and-respond/kroll-artifact-parser-extractor-kape) - request form required :(|Expected Location: `C:\tools\KAPE\kape.exe`|
-|PowerShell|[GitHub Releases](https://github.com/PowerShell/powershell/releases)|Version 7.x or above is required.|
+|PowerShell|[GitHub Releases](https://github.com/PowerShell/powershell/releases)|Version 7 or above is required.|
 
 If the software location differs on your system, modify the Process-Triage script to reflect the full path.
 
