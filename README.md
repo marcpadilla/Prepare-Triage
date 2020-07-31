@@ -8,7 +8,7 @@ If multiple triage packages for a single host exist, Process-Triage will differe
 
 Process-Triage utilizes the following software:
 
-|Name|URL|Expected Location|
+|Name|Links|Expected Location|
 |----|----|----|
 |7-Zip|[Download](https://www.7-zip.org/download.html)|`C:\Program Files\7-Zip\7z.exe`|
 |KAPE|[Download](https://www.kroll.com/en/services/cyber-risk/investigate-and-respond/kroll-artifact-parser-extractor-kape) (request form required)|`C:\tools\KAPE\kape.exe`|
