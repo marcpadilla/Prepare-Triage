@@ -10,7 +10,7 @@ Process-Triage utilizes the following software:
 
 |Name|URL|Expected Location|
 |----|----|----|
-|7-Zip|[https://www.7-zip.org/download.html](Download Page)|`C:\Program Files\7-Zip\7z.exe`|
+|7-Zip|(Download Page)[https://www.7-zip.org/download.html]|`C:\Program Files\7-Zip\7z.exe`|
 |KAPE|[https://www.kroll.com/en/services/cyber-risk/investigate-and-respond/kroll-artifact-parser-extractor-kape](Download Page (Submission Form)|`C:\tools\KAPE\kape.exe`|
 |PowerShell*|[https://github.com/PowerShell/powershell/releases](GitHub Releases)||
 
