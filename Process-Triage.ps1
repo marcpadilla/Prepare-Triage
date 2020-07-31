@@ -2,7 +2,7 @@
 .SYNOPSIS
 Takes a directory containing triage packages and processes them with KAPE.
 .EXAMPLE
-.\Process-Triage.ps1 -Source S:\matter\ -Destination C:\mpwd\kape\
+.\Process-Triage.ps1 -Source X:\directory\ -Destination C:\mp\kape\
 .NOTES
 Author: Marc Padilla (marc@padil.la)
 GitHub: https://github.com/marcpadilla/Process-Triage
@@ -23,11 +23,12 @@ Write-Host "`nProcess-Triage by Marc Padilla (marc@padil.la)`n"
 # modify if necessary
 $TempDest = "C:\Windows\Temp\angrydome\"
 $SevenZip = "C:\Program Files\7-Zip\7z.exe"
+$DeepBlueCli = "C:\tools\DeepBlueCli\DeepBlue.ps1"
 $Kape = "C:\tools\kape\kape.exe"
 $Location = Get-Location
 
 # check data source and required programs
-foreach ($item in $SevenZip, $Kape, $Source) {
+foreach ($item in $SevenZip, $DeepBlueCli, $Kape, $Source) {
     if (!(Test-Path -Path $item)) {
         Write-Output "$item does not exist. Exiting.`n"
         Exit
@@ -93,9 +94,9 @@ else {
     Write-Output "$NewTriagePackageCount new triage package(s) have been located for processing.`n"
 }
 
-# check for lol slow cyberlab vm
-if ((Get-CimInstance -Class Win32_ComputerSystem | Select -ExpandProperty Domain) -eq "cyber.local") {
-    $Cores = 2
+# check for vmware guest
+if (Get-CimInstance -Class Win32_ComputerSystem | Select -ExpandProperty Model).Split(' ')[0] -eq "VMware" {
+    $Cores = 2 # some tools shred vmware guests -- limiting -Parallel to 2 by default
 }
 else {
     $Cores = Get-CimInstance -Class CIM_Processor | Select -ExpandProperty NumberOfCores
