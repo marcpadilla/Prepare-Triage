@@ -20,6 +20,10 @@ Prepare-Triage utilizes the following software:
 C:\tools\Prepare-Triage.ps1 -Source D:\ClientName\ -Destination C:\WorkingDir\ClientName\KAPE\
 ```
 
+## To-Do
+
+Add reference to external PowerShell script for additional processing while data sources are available. For example: Running DeepBlueCLI against event logs before a VHDX container is dismounted.
+
 ## Additional Notes
 
 None. If you are having trouble you can email me at [marc@padil.la](mailto:marc@padil.la).
