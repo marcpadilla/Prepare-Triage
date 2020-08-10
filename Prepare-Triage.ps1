@@ -86,7 +86,7 @@ else {
 }
 
 if ((Get-CimInstance -Class Win32_ComputerSystem | Select -ExpandProperty Model).Split(" ")[0] -eq "VMware") {
-    $Cores = 2 # Some tools shred vmware guests.  Limiting -Parallel to 2.
+    $Cores = 2 # Some tools shred VMware guests.  Limiting -Parallel to 2.
 }
 else {
     $Cores = Get-CimInstance -Class CIM_Processor | Select -ExpandProperty NumberOfCores
