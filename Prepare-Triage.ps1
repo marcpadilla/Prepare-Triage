@@ -2,7 +2,7 @@
 .SYNOPSIS
 Takes a directory containing DupTriage and/or KapeTriage packages and processes them.
 .EXAMPLE
-C:\tools\Prepare-Triage.ps1 -Source D:\ClientName\ -Destination C:\WorkingDir\ClientName\KAPE\
+C:\tools\Prepare-Triage.ps1 -Source D:\ClientName\ -Destination C:\WorkingDir\ClientName\Prepared\
 .NOTES
 Author: Marc Padilla (marc@padil.la)
 GitHub: https://github.com/marcpadilla/Prepare-Triage
@@ -22,9 +22,10 @@ param(
 Write-Host "`nPrepare-Triage by Marc Padilla (marc@padil.la)`n"
 
 $TempDest = "C:\Windows\Temp\angrydome\"
-$SevenZip = "C:\Program Files\7-Zip\7z.exe"
+$SevenZip = "C:\Program Files\7-Zip\7z.exe" # https://www.7-zip.org/
 $Kape = "C:\tools\kape\kape.exe"
 $Location = Get-Location
+$Loki = "C:\tools\Loki\loki.exe" # https://github.com/Neo23x0/Loki, https://github.com/Neo23x0/signature-base
 
 foreach ($item in $SevenZip, $Kape, $Source) {
     if (!(Test-Path -Path $item)) { # Check data source and required programs.
@@ -39,7 +40,7 @@ if ($Destination[-1] -ne "\") {
 
 Set-Location -Path $Source
 $TriageDirectories = "DupTriage\", "KapeTriage\"
-$TriagePackages = Get-ChildItem -Path $TriageDirectories -Recurse | Where-Object -FilterScript {$_.FullName -match ".7z|.zip"} | Select FullName,BaseName,LastWriteTime
+$TriagePackages = Get-ChildItem -Path $TriageDirectories -Recurse | Where-Object -FilterScript { $_.FullName -match ".7z|.zip" } | Select FullName,BaseName,LastWriteTime
 foreach ($file in $TriagePackages) {
     $SensorId = $file.FullName.Split("\")[3].Split("_")[0]
     $UnderscoreCount = ($file.BaseName.Split("_DupTriage.7z")[0].Split(".zip")[0].ToCharArray() -eq "_").count # Account for "_" in hostnames.
@@ -64,14 +65,14 @@ if ($TriagePackageCount -eq 0) { # Check for zero triage packages.
     Exit
 }
 
-$TriagePackages = $TriagePackages | Where-Object -FilterScript {$_.Incomplete -eq $False} # Filter out incomplete triage packages.
+$TriagePackages = $TriagePackages | Where-Object -FilterScript { $_.Incomplete -eq $False } # Filter out incomplete triage packages.
 $IncompleteTriagePackageCount = $TriagePackageCount - ($TriagePackages | Measure-Object).Count
 if ($IncompleteTriagePackageCount -ne 0) {
     Write-Output "$IncompleteTriagePackageCount INCOMPLETE triage package(s) have been located and will be skipped.`n"
     $TriagePackageCount = ($TriagePackages | Measure-Object).Count
 }
 
-$TriagePackages = $TriagePackages | Where-Object -FilterScript {$_.Processed -eq $False} # Filter out previously processed triage packages.
+$TriagePackages = $TriagePackages | Where-Object -FilterScript { $_.Processed -eq $False } # Filter out previously processed triage packages.
 $NewTriagePackageCount = ($TriagePackages | Measure-Object).Count
 if ($TriagePackageCount -eq $NewTriagePackageCount) {
     Write-Output "$NewTriagePackageCount triage package(s) have been located and will be processed.`n"
@@ -111,6 +112,8 @@ $TriagePackages | ForEach-Object -Parallel {
         $msource = $msource.DriveLetter + ":"
     }
     & $using:Kape --msource $msource --mdest $mdest --mflush --module !EZParser --mef csv 2>&1 | Out-Null # Run KAPE.
+    $LokiDest = $mdest + "\Scans\" + $_.HostName + "_loki.csv"
+    & $using:Loki --noprocscan -p $msource --csv -l $LokiDest --dontwait 2>&1 | Out-Null
     if ($_.TriageType -eq "DupTriage") {
         Remove-Item $msource -Recurse -Force
     }
