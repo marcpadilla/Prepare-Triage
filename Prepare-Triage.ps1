@@ -23,6 +23,7 @@ Write-Host "`nPrepare-Triage by Marc Padilla (marc@padil.la)`n"
 
 $TempDest = "C:\Windows\Temp\angrydome\"
 $SevenZip = "C:\Program Files\7-Zip\7z.exe" # https://www.7-zip.org/
+$DeepBlueCli = "C:\tools\DeepBlueCLI\DeepBlue.ps1"
 $Kape = "C:\tools\kape\kape.exe"
 $Location = Get-Location
 $Loki = "C:\tools\Loki\loki.exe" # https://github.com/Neo23x0/Loki, https://github.com/Neo23x0/signature-base
@@ -112,8 +113,17 @@ $TriagePackages | ForEach-Object -Parallel {
         $msource = $msource.DriveLetter + ":"
     }
     & $using:Kape --msource $msource --mdest $mdest --mflush --module !EZParser --mef csv 2>&1 | Out-Null # Run KAPE.
-    $LokiDest = $mdest + "\Scans\" + $_.HostName + "_loki.csv"
+    New-Item -Path $mdest"\Scans" -ItemType Directory
+    $LokiDest = $mdest + "\Scans\" + $_.HostName + "_LOKI.csv"
     & $using:Loki --noprocscan -p $msource --csv -l $LokiDest --dontwait 2>&1 | Out-Null
+    $DeepBlueCliDest = $mdest + "\Scans\" + $_.HostName + "_"
+    Set-Location -Path "C:\tools\DeepBlueCLI\" # DeepBlueCLI needs to be ran from its location.
+    foreach ($EventLog in "Application.evtx", "Security.evtx", "System.evtx", "Windows PowerShell.evtx") {
+        Get-ChildItem -Path $msource -Recurse -Filter $EventLog | ForEach-Object {
+            & $using:DeepBlueCli $_.FullName | ConvertTo-Csv | Out-File -FilePath $DeepBlueCliDest$EventLog"_DeepBlueCLI.csv"  2>&1 | Out-Null
+            }
+        }
+    Set-Location $Location
     if ($_.TriageType -eq "DupTriage") {
         Remove-Item $msource -Recurse -Force
     }
