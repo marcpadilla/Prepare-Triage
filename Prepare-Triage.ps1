@@ -113,14 +113,14 @@ $TriagePackages | ForEach-Object -Parallel {
         $msource = $msource.DriveLetter + ":"
     }
     & $using:Kape --msource $msource --mdest $mdest --mflush --module !EZParser --mef csv 2>&1 | Out-Null # Run KAPE.
-    New-Item -Path $mdest"\Scans" -ItemType Directory
+    New-Item -Path $mdest"\Scans" -ItemType Directory 2>&1 | Out-Null
     $LokiDest = $mdest + "\Scans\" + $_.HostName + "_LOKI.csv"
     & $using:Loki --noprocscan -p $msource --csv -l $LokiDest --dontwait 2>&1 | Out-Null
     $DeepBlueCliDest = $mdest + "\Scans\" + $_.HostName + "_"
     Set-Location -Path "C:\tools\DeepBlueCLI\" # DeepBlueCLI needs to be ran from its location.
     foreach ($EventLog in "Application.evtx", "Security.evtx", "System.evtx", "Windows PowerShell.evtx") {
         Get-ChildItem -Path $msource -Recurse -Filter $EventLog | ForEach-Object {
-            & $using:DeepBlueCli $_.FullName | ConvertTo-Csv | Out-File -FilePath $DeepBlueCliDest$EventLog"_DeepBlueCLI.csv"  2>&1 | Out-Null
+            & $using:DeepBlueCli $_.FullName | ConvertTo-Csv | Out-File -FilePath $DeepBlueCliDest$EventLog"_DeepBlueCLI.csv" 2>&1 | Out-Null
             }
         }
     Set-Location $Location
