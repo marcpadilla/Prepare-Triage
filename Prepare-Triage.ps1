@@ -118,7 +118,7 @@ $TriagePackages | ForEach-Object -Parallel {
     & $using:Loki --noprocscan -p $msource --csv -l $LokiDest --dontwait 2>&1 | Out-Null
     $DeepBlueCliDest = $mdest + "\Scans\" + $_.HostName + "_"
     Set-Location -Path "C:\tools\DeepBlueCLI\" # DeepBlueCLI needs to be ran from its location.
-    foreach ($EventLog in "Application.evtx", "Security.evtx", "System.evtx", "Windows PowerShell.evtx") {
+    foreach ($EventLog in "Application.evtx", "Security.evtx", "System.evtx", "Windows PowerShell.evtx", "Microsoft-Windows-Sysmon%4Operational.evtx") {
         Get-ChildItem -Path $msource -Recurse -Filter $EventLog | ForEach-Object {
             & $using:DeepBlueCli $_.FullName | ConvertTo-Csv | Out-File -FilePath $DeepBlueCliDest$EventLog"_DeepBlueCLI.csv" 2>&1 | Out-Null
             }
