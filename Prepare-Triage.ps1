@@ -30,7 +30,7 @@ $SevenZip = "C:\Program Files\7-Zip\7z.exe" # https://www.7-zip.org/
 $Kape = "C:\tools\kape\kape.exe"
 # Scanner variables.
 $DeepBlueCli = "C:\tools\DeepBlueCLI\DeepBlue.ps1" # https://github.com/sans-blue-team/DeepBlueCLI
-$DeepBlueCliEventLogs = "Application.evtx", "Security.evtx", "System.evtx", "Microsoft-Windows-PowerShell%4Operational.evtx", "Microsoft-Windows-Sysmon%4Operational.evtx"
+$DeepBlueCliEventLogs = "Application", "Security", "System", "Microsoft-Windows-PowerShell%4Operational", "Microsoft-Windows-Sysmon%4Operational"
 $Loki = "C:\tools\Loki\loki.exe" # https://github.com/Neo23x0/Loki, https://github.com/Neo23x0/signature-base
 $SupportedScans = "loki", "deepbluecli"
 
@@ -130,18 +130,19 @@ $TriagePackages | ForEach-Object -Parallel {
         $msource = $msource.DriveLetter + ":"
     }
     & $using:Kape --msource $msource --mdest $mdest --mflush --module !EZParser --mef csv 2>&1 | Out-Null # Run KAPE.
-    New-Item -Path $mdest"\Scans" -ItemType Directory 2>&1 | Out-Null # Scan output directory.
     if ("loki" -in $using:Scans) { # Run LOKI Scan
-        $LokiDest = $mdest + "\Scans\" + $_.HostName + "_LOKI.csv"
-        & $using:Loki --noprocscan -p $msource --csv -l $LokiDest --dontwait 2>&1 | Out-Null
+        $LokiDest = $mdest + "\Scans\LOKI"
+        New-Item -Path $LokiDest -ItemType Directory 2>&1 | Out-Null
+        & $using:Loki --noprocscan -p $msource --csv -l $LokiDest$_.HostName".csv" --dontwait 2>&1 | Out-Null
     }
     if ("deepbluecli" -in $using:Scans) { # Run DeepBlueCLI Scan
-        $DeepBlueCliDest = $mdest + "\Scans\" + $_.HostName + "_"
+        $DeepBlueCliDest = $mdest + "\Scans\DeepBlueCLI\"
+        New-Item -Path $DeepBlueCliDest -ItemType Directory 2>&1 | Out-Null
         Set-Location -Path "C:\tools\DeepBlueCLI\" # DeepBlueCLI needs to be ran from its location.
-        foreach ($EventLog in $DeepBlueCliEventLogs) {
-            $Count += 1
+        foreach (($EventLog + ".evtx") in $using:DeepBlueCliEventLogs) {
+            $Count += 1 # Count exists to be prepended to output file.
             Get-ChildItem -Path $msource -Recurse -Filter $EventLog | ForEach-Object {
-                & $using:DeepBlueCli $_.FullName | ConvertTo-Csv | Out-File -FilePath $DeepBlueCliDest$EventLog"_"$Count"_DeepBlueCLI.csv" 2>&1 | Out-Null
+                & $using:DeepBlueCli $_.FullName | ConvertTo-Csv | Out-File -FilePath $DeepBlueCliDest$Count"_"$EventLog".csv" 2>&1 | Out-Null
             }
         }
     }
@@ -163,5 +164,3 @@ Set-Location $Location
 Write-Host "`nPrepare-Triage Complete. Exiting.`n"
 
 Exit
-
-#>
