@@ -2,7 +2,7 @@
 .SYNOPSIS
 Takes a directory containing DupTriage and/or KapeTriage packages and processes them.
 .EXAMPLE
-C:\tools\Prepare-Triage.ps1 -Source D:\ClientName\ -Destination C:\WorkingDir\ClientName\Prepared\ -Scans Loki,DeepBlueCLI
+C:\tools\Prepare-Triage.ps1 -Source D:\TriageSourceDir\ -Destination C:\OutputDir\ -Scans Loki,DeepBlueCLI
 .NOTES
 Author: Marc Padilla (marc@padil.la)
 GitHub: https://github.com/marcpadilla/Prepare-Triage
@@ -94,7 +94,7 @@ if ($IncompleteTriagePackageCount -ne 0) {
 $TriagePackages = $TriagePackages | Where-Object -FilterScript { $_.Processed -eq $False } # Filter out previously processed triage packages.
 $NewTriagePackageCount = ($TriagePackages | Measure-Object).Count
 if ($TriagePackageCount -eq $NewTriagePackageCount) {
-    Write-Host "+ $NewTriagePackageCount triage package(s) have been located and will be processed.`n" -ForegroundColor Green
+    Write-Host "$NewTriagePackageCount triage package(s) have been located and will be processed.`n" -ForegroundColor Green
 }
 elseif ($NewTriagePackageCount -eq 0) {
     Write-Host "No new triage packages located for processing. Exiting.`n"
