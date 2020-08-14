@@ -87,7 +87,7 @@ if ($TriagePackageCount -eq 0) { # Check for zero triage packages.
 $TriagePackages = $TriagePackages | Where-Object -FilterScript { $_.Incomplete -eq $False } # Filter out incomplete triage packages.
 $IncompleteTriagePackageCount = $TriagePackageCount - ($TriagePackages | Measure-Object).Count
 if ($IncompleteTriagePackageCount -ne 0) {
-    Write-Host "$IncompleteTriagePackageCount INCOMPLETE triage package(s) have been located and will be skipped.`n"
+    Write-Host "$IncompleteTriagePackageCount INCOMPLETE triage package(s) have been located and will be skipped.`n" -ForegroundColor Yellow
     $TriagePackageCount = ($TriagePackages | Measure-Object).Count
 }
 
