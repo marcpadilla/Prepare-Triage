@@ -16,7 +16,7 @@ Prepare-Triage utilizes the following software:
 |LOKI|[GitHub Releases](https://github.com/Neo23x0/Loki/releases), [Signature Base](https://github.com/Neo23x0/signature-base)|`C:\tools\loki\loki.exe`|
 |PowerShell|[GitHub Releases](https://github.com/PowerShell/powershell/releases)|Version 7 or above is required.|
 
-## Example
+## Examples
 
 Run KAPE, LOKI, and DeepBlueCLI on triage packages.
 
