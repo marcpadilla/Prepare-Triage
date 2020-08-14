@@ -131,7 +131,7 @@ $TriagePackages | ForEach-Object -Parallel {
     }
     & $using:Kape --msource $msource --mdest $mdest --mflush --module !EZParser --mef csv 2>&1 | Out-Null # Run KAPE.
     if ("loki" -in $using:Scans) { # Run LOKI Scan
-        $LokiDest = $mdest + "\Scans\LOKI"
+        $LokiDest = $mdest + "\Scans\LOKI\"
         New-Item -Path $LokiDest -ItemType Directory 2>&1 | Out-Null
         & $using:Loki --noprocscan -p $msource --csv -l $LokiDest$_.HostName".csv" --dontwait 2>&1 | Out-Null
     }
