@@ -134,7 +134,7 @@ $TriagePackages | ForEach-Object -Parallel {
     if ("loki" -in $using:Scans) { # Run LOKI Scan
         $LokiDest = $mdest + "\Scans\LOKI\"
         New-Item -Path $LokiDest -ItemType Directory 2>&1 | Out-Null
-        & $using:Loki --noprocscan -p $msource --csv -l $LokiDest$_.HostName".csv" --dontwait 2>&1 | Out-Null
+        & $using:Loki --noprocscan -p $msource --csv --logfolder $LokiDest --dontwait 2>&1 | Out-Null
     }
     if ("deepbluecli" -in $using:Scans) { # Run DeepBlueCLI Scan
         $DeepBlueCliDest = $mdest + "\Scans\DeepBlueCLI\"
