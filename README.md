@@ -18,8 +18,16 @@ Prepare-Triage utilizes the following software:
 
 ## Example
 
+Run KAPE, LOKI, and DeepBlueCLI on triage packages.
+
 ```PowerShell
 C:\tools\Prepare-Triage.ps1 -Source D:\ClientName\ -Destination C:\WorkingDir\ClientName\Prepared\ -Scans Loki,DeepBlueCLI
+```
+
+Only run DeepBlueCLI against triage packages.
+
+```PowerShell
+C:\tools\Prepare-Triage.ps1 -Source D:\ClientName\ -Destination C:\WorkingDir\ClientName\Prepared\ -Scans DeepBlueCLI -NoKape
 ```
 
 ## Additional Notes
