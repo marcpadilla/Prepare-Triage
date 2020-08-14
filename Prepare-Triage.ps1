@@ -28,8 +28,9 @@ $Location = Get-Location
 # Core executables.
 $SevenZip = "C:\Program Files\7-Zip\7z.exe" # https://www.7-zip.org/
 $Kape = "C:\tools\kape\kape.exe"
-# Scanner executables.
+# Scanner variables.
 $DeepBlueCli = "C:\tools\DeepBlueCLI\DeepBlue.ps1" # https://github.com/sans-blue-team/DeepBlueCLI
+$DeepBlueCliEventLogs = "Application.evtx", "Security.evtx", "System.evtx", "Microsoft-Windows-PowerShell%4Operational.evtx", "Microsoft-Windows-Sysmon%4Operational.evtx"
 $Loki = "C:\tools\Loki\loki.exe" # https://github.com/Neo23x0/Loki, https://github.com/Neo23x0/signature-base
 $SupportedScans = "loki", "deepbluecli"
 
@@ -60,7 +61,7 @@ $TriageDirectories = "DupTriage\", "KapeTriage\"
 $TriagePackages = Get-ChildItem -Path $TriageDirectories -Recurse | Where-Object -FilterScript { $_.FullName -match ".7z|.zip" } | Select FullName,BaseName,LastWriteTime
 foreach ($file in $TriagePackages) {
     $SensorId = $file.FullName.Split("\")[3].Split("_")[0]
-    $UnderscoreCount = ($file.BaseName.Split("_DupTriage.7z")[0].Split(".zip")[0].ToCharArray() -eq "_").count # Account for "_" in hostnames.
+    $UnderscoreCount = ($file.BaseName.Split("_DupTriage.7z")[0].Split(".zip")[0].ToCharArray() -eq "_").Count # Account for "_" in hostnames.
     if ($UnderscoreCount -gt 2) {
         $file | Add-Member -MemberType NoteProperty -Name "HostName" -Value ($file.BaseName.Split("_DupTriage")[0].Split(".zip")[0].Split("_")[1..$UnderscoreCount] -join "_")
     }
@@ -137,9 +138,10 @@ $TriagePackages | ForEach-Object -Parallel {
     if ("deepbluecli" -in $using:Scans) { # Run DeepBlueCLI Scan
         $DeepBlueCliDest = $mdest + "\Scans\" + $_.HostName + "_"
         Set-Location -Path "C:\tools\DeepBlueCLI\" # DeepBlueCLI needs to be ran from its location.
-        foreach ($EventLog in "Application.evtx", "Security.evtx", "System.evtx", "Windows PowerShell.evtx", "Microsoft-Windows-Sysmon%4Operational.evtx") {
+        foreach ($EventLog in $DeepBlueCliEventLogs) {
+            $Count += 1
             Get-ChildItem -Path $msource -Recurse -Filter $EventLog | ForEach-Object {
-                & $using:DeepBlueCli $_.FullName | ConvertTo-Csv | Out-File -FilePath $DeepBlueCliDest$EventLog"_DeepBlueCLI.csv" 2>&1 | Out-Null
+                & $using:DeepBlueCli $_.FullName | ConvertTo-Csv | Out-File -FilePath $DeepBlueCliDest$EventLog"_"$Count"_DeepBlueCLI.csv" 2>&1 | Out-Null
             }
         }
     }
