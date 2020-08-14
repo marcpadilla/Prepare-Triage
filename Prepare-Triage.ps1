@@ -139,9 +139,9 @@ $TriagePackages | ForEach-Object -Parallel {
         $DeepBlueCliDest = $mdest + "\Scans\DeepBlueCLI\"
         New-Item -Path $DeepBlueCliDest -ItemType Directory 2>&1 | Out-Null
         Set-Location -Path "C:\tools\DeepBlueCLI\" # DeepBlueCLI needs to be ran from its location.
-        foreach (($EventLog + ".evtx") in $using:DeepBlueCliEventLogs) {
+        foreach ($EventLog in $using:DeepBlueCliEventLogs) {
             $Count += 1 # Count exists to be prepended to output file.
-            Get-ChildItem -Path $msource -Recurse -Filter $EventLog | ForEach-Object {
+            Get-ChildItem -Path $msource -Recurse -Filter $EventLog".evtx" | ForEach-Object {
                 & $using:DeepBlueCli $_.FullName | ConvertTo-Csv | Out-File -FilePath $DeepBlueCliDest$Count"_"$EventLog".csv" 2>&1 | Out-Null
             }
         }
