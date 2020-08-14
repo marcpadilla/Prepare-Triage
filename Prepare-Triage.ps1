@@ -31,10 +31,10 @@ $Kape = "C:\tools\kape\kape.exe"
 # Scanner executables.
 $DeepBlueCli = "C:\tools\DeepBlueCLI\DeepBlue.ps1" # https://github.com/sans-blue-team/DeepBlueCLI
 $Loki = "C:\tools\Loki\loki.exe" # https://github.com/Neo23x0/Loki, https://github.com/Neo23x0/signature-base
-$SupportedScans = "loki","deepbluecli"
+$SupportedScans = "loki", "deepbluecli"
 
 if (!$Scans) { # Check for -Scans parameter.
-    Write-Host "No -Scan specified. Only processing triage packages with KAPE."
+    Write-Host "No -Scan specified. Only processing triage packages with KAPE.`n"
 }
 else {
     $Scans = $Scans.ToLower()
