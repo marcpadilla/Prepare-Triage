@@ -17,7 +17,8 @@ param(
     [string]$Source,
     [Parameter(Mandatory)]
     [string]$Destination,
-    [array]$Scans
+    [array]$Scans,
+    [switch]$NoKape
     )
 
 Write-Host "`nPrepare-Triage by Marc Padilla (marc@padil.la)`n"
@@ -129,7 +130,7 @@ $TriagePackages | ForEach-Object -Parallel {
         $msource = Mount-VHD -Path $vhdx -Passthru | Get-Disk | Get-Partition | Get-Volume
         $msource = $msource.DriveLetter + ":"
     }
-    & $using:Kape --msource $msource --mdest $mdest --mflush --module !EZParser --mef csv 2>&1 | Out-Null # Run KAPE.
+    if (!$NoKape) { & $using:Kape --msource $msource --mdest $mdest --mflush --module !EZParser --mef csv 2>&1 | Out-Null } # Run KAPE.
     if ("loki" -in $using:Scans) { # Run LOKI Scan
         $LokiDest = $mdest + "\Scans\LOKI\"
         New-Item -Path $LokiDest -ItemType Directory 2>&1 | Out-Null
