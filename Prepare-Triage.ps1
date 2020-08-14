@@ -2,7 +2,7 @@
 .SYNOPSIS
 Takes a directory containing DupTriage and/or KapeTriage packages and processes them.
 .EXAMPLE
-C:\tools\Prepare-Triage.ps1 -Source D:\ClientName\ -Destination C:\WorkingDir\ClientName\Prepared\
+C:\tools\Prepare-Triage.ps1 -Source D:\ClientName\ -Destination C:\WorkingDir\ClientName\Prepared\ -Scans Loki,DeepBlueCLI
 .NOTES
 Author: Marc Padilla (marc@padil.la)
 GitHub: https://github.com/marcpadilla/Prepare-Triage
@@ -16,21 +16,37 @@ param(
     [Parameter(Mandatory)]
     [string]$Source,
     [Parameter(Mandatory)]
-    [string]$Destination
+    [string]$Destination,
+    [array]$Scans
     )
 
 Write-Host "`nPrepare-Triage by Marc Padilla (marc@padil.la)`n"
 
+# Initial variable assignments.
 $TempDest = "C:\Windows\Temp\angrydome\"
-$SevenZip = "C:\Program Files\7-Zip\7z.exe" # https://www.7-zip.org/
-$DeepBlueCli = "C:\tools\DeepBlueCLI\DeepBlue.ps1"
-$Kape = "C:\tools\kape\kape.exe"
 $Location = Get-Location
+# Core executables.
+$SevenZip = "C:\Program Files\7-Zip\7z.exe" # https://www.7-zip.org/
+$Kape = "C:\tools\kape\kape.exe"
+# Scanner executables.
+$DeepBlueCli = "C:\tools\DeepBlueCLI\DeepBlue.ps1" # https://github.com/sans-blue-team/DeepBlueCLI
 $Loki = "C:\tools\Loki\loki.exe" # https://github.com/Neo23x0/Loki, https://github.com/Neo23x0/signature-base
+$SupportedScans = "loki","deepbluecli"
+
+if (!$Scans) { # Check for -Scans parameter.
+    Write-Host "No -Scan specified. Only processing triage packages with KAPE."
+}
+else {
+    $Scans = $Scans.ToLower()
+    if ((($Scans | Where-Object { $_ -notin $SupportedScans}).Count) -ne 0) { # Inform user of an invalid -Scan parameter.
+        Write-Host "> Unsupported -Scan parameter. Please review and try again. Exiting.`n" -ForegroundColor Red
+        Exit
+    }
+}
 
 foreach ($item in $SevenZip, $Kape, $Source) {
     if (!(Test-Path -Path $item)) { # Check data source and required programs.
-        Write-Output "$item does not exist. Exiting.`n"
+        Write-Host "$item does not exist. Exiting.`n" -ForegroundColor Red
         Exit
     }
 }
@@ -61,7 +77,7 @@ $TriagePackages = $TriagePackages | Sort-Object LastWriteTime -Descending
 
 $TriagePackageCount = ($TriagePackages | Measure-Object).Count
 if ($TriagePackageCount -eq 0) { # Check for zero triage packages.
-    Write-Output "Good news, everyone! Bad news. No triage packages found. Are you looking in the right place?`n"
+    Write-Host "Good news, everyone! Bad news. No triage packages found. Are you looking in the right place?`n"
     Set-Location $Location
     Exit
 }
@@ -69,22 +85,22 @@ if ($TriagePackageCount -eq 0) { # Check for zero triage packages.
 $TriagePackages = $TriagePackages | Where-Object -FilterScript { $_.Incomplete -eq $False } # Filter out incomplete triage packages.
 $IncompleteTriagePackageCount = $TriagePackageCount - ($TriagePackages | Measure-Object).Count
 if ($IncompleteTriagePackageCount -ne 0) {
-    Write-Output "$IncompleteTriagePackageCount INCOMPLETE triage package(s) have been located and will be skipped.`n"
+    Write-Host "$IncompleteTriagePackageCount INCOMPLETE triage package(s) have been located and will be skipped.`n"
     $TriagePackageCount = ($TriagePackages | Measure-Object).Count
 }
 
 $TriagePackages = $TriagePackages | Where-Object -FilterScript { $_.Processed -eq $False } # Filter out previously processed triage packages.
 $NewTriagePackageCount = ($TriagePackages | Measure-Object).Count
 if ($TriagePackageCount -eq $NewTriagePackageCount) {
-    Write-Output "$NewTriagePackageCount triage package(s) have been located and will be processed.`n"
+    Write-Host "+ $NewTriagePackageCount triage package(s) have been located and will be processed.`n" -ForegroundColor Green
 }
 elseif ($NewTriagePackageCount -eq 0) {
-    Write-Output "No new triage packages located for processing. Exiting.`n"
+    Write-Host "No new triage packages located for processing. Exiting.`n"
     Set-Location $Location
     Exit
 }
 else {
-    Write-Output "$NewTriagePackageCount new triage package(s) have been located for processing.`n"
+    Write-Host "$NewTriagePackageCount new triage package(s) have been located for processing.`n" -ForegroundColor Green
 }
 
 if ((Get-CimInstance -Class Win32_ComputerSystem | Select -ExpandProperty Model).Split(" ")[0] -eq "VMware") {
@@ -113,16 +129,20 @@ $TriagePackages | ForEach-Object -Parallel {
         $msource = $msource.DriveLetter + ":"
     }
     & $using:Kape --msource $msource --mdest $mdest --mflush --module !EZParser --mef csv 2>&1 | Out-Null # Run KAPE.
-    New-Item -Path $mdest"\Scans" -ItemType Directory 2>&1 | Out-Null
-    $LokiDest = $mdest + "\Scans\" + $_.HostName + "_LOKI.csv"
-    & $using:Loki --noprocscan -p $msource --csv -l $LokiDest --dontwait 2>&1 | Out-Null
-    $DeepBlueCliDest = $mdest + "\Scans\" + $_.HostName + "_"
-    Set-Location -Path "C:\tools\DeepBlueCLI\" # DeepBlueCLI needs to be ran from its location.
-    foreach ($EventLog in "Application.evtx", "Security.evtx", "System.evtx", "Windows PowerShell.evtx", "Microsoft-Windows-Sysmon%4Operational.evtx") {
-        Get-ChildItem -Path $msource -Recurse -Filter $EventLog | ForEach-Object {
-            & $using:DeepBlueCli $_.FullName | ConvertTo-Csv | Out-File -FilePath $DeepBlueCliDest$EventLog"_DeepBlueCLI.csv" 2>&1 | Out-Null
+    New-Item -Path $mdest"\Scans" -ItemType Directory 2>&1 | Out-Null # Scan output directory.
+    if ("loki" -in $using:Scans) { # Run LOKI Scan
+        $LokiDest = $mdest + "\Scans\" + $_.HostName + "_LOKI.csv"
+        & $using:Loki --noprocscan -p $msource --csv -l $LokiDest --dontwait 2>&1 | Out-Null
+    }
+    if ("deepbluecli" -in $using:Scans) { # Run DeepBlueCLI Scan
+        $DeepBlueCliDest = $mdest + "\Scans\" + $_.HostName + "_"
+        Set-Location -Path "C:\tools\DeepBlueCLI\" # DeepBlueCLI needs to be ran from its location.
+        foreach ($EventLog in "Application.evtx", "Security.evtx", "System.evtx", "Windows PowerShell.evtx", "Microsoft-Windows-Sysmon%4Operational.evtx") {
+            Get-ChildItem -Path $msource -Recurse -Filter $EventLog | ForEach-Object {
+                & $using:DeepBlueCli $_.FullName | ConvertTo-Csv | Out-File -FilePath $DeepBlueCliDest$EventLog"_DeepBlueCLI.csv" 2>&1 | Out-Null
             }
         }
+    }
     Set-Location $Location
     if ($_.TriageType -eq "DupTriage") {
         Remove-Item $msource -Recurse -Force
@@ -141,3 +161,5 @@ Set-Location $Location
 Write-Host "`nPrepare-Triage Complete. Exiting.`n"
 
 Exit
+
+#>
