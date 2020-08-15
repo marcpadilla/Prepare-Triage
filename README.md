@@ -2,7 +2,7 @@
 
 Takes a directory containing [dup](https://tzworks.net/prototype_page.php?proto_id=37) and/or Kroll Artifact Parser and Extractor ([KAPE](https://www.kroll.com/en/services/cyber-risk/investigate-and-respond/kroll-artifact-parser-extractor-kape)) triage packages and processes them for streamlined analysis. By default KAPE is used for processing via its [modules](https://ericzimmerman.github.io/KapeDocs/#!Pages\2.2-Modules.md).
 
-If multiple triage packages for a single host exist Prepare-Triage will differentiate them by collection timestamp and process them all. Triage packages marked as *incomplete* are skipped and a message is printed to screen. Previously processed triage packages are skipped when Prepare-Triage is re-run. This encourages you to run Prepare-Triage throughout an engagement.
+If multiple triage packages for a single host exist Prepare-Triage will differentiate them by collection timestamp and process them all. Triage packages marked as *incomplete* are skipped and a message is printed to screen. Previously processed triage packages are skipped when Prepare-Triage is re-ran with the same arguments. This encourages you to run Prepare-Triage throughout an engagement.
 
 ## Required Software
 
