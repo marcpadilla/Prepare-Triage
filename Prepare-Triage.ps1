@@ -18,7 +18,8 @@ param(
     [Parameter(Mandatory)]
     [string]$Destination,
     [array]$Scans,
-    [switch]$NoKape
+    [switch]$NoKape,
+    [switch]$BlackBlox
     )
 
 Write-Host "`nPrepare-Triage by Marc Padilla (marc@padil.la)`n"
@@ -146,6 +147,10 @@ $TriagePackages | ForEach-Object -Parallel {
                 & $using:DeepBlueCli $_.FullName | ConvertTo-Csv | Out-File -FilePath $DeepBlueCliDest$Count"_"$EventLog".csv" 2>&1 | Out-Null
             }
         }
+    }
+    if ($using:BlackBox) { 
+        Write-Host "-BlackBox switch detected. Executing foreign script(s)."
+        # .\blackbox.ps1
     }
     Set-Location $Location
     if ($_.TriageType -eq "DupTriage") {

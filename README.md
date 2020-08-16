@@ -32,4 +32,7 @@ C:\tools\Prepare-Triage.ps1 -Source D:\TriageSourceDir\ -Destination C:\OutputDi
 
 ## Additional Notes
 
-None. If you are having trouble you can email me at [marc@padil.la](mailto:marc@padil.la).
+- Adjust the script to meet your specific reqirements. Your triage output file naming scheme may be different than mine, for example.
+- KAPE's native [batch mode](https://ericzimmerman.github.io/KapeDocs/#!Pages\3.1-Batch-mode.md) (a.k.a.\_kape.cli) may be all you are looking for. Investigate using that first.
+
+If you are having trouble you can email me at [marc@padil.la](mailto:marc@padil.la).
