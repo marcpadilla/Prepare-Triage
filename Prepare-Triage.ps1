@@ -34,7 +34,8 @@ $Kape = "C:\tools\kape\kape.exe"
 $DeepBlueCli = "C:\tools\DeepBlueCLI\DeepBlue.ps1" # https://github.com/sans-blue-team/DeepBlueCLI
 $DeepBlueCliEventLogs = "Application", "Security", "System", "Microsoft-Windows-PowerShell%4Operational", "Microsoft-Windows-Sysmon%4Operational"
 $Loki = "C:\tools\Loki\loki.exe" # https://github.com/Neo23x0/Loki, https://github.com/Neo23x0/signature-base
-$SupportedScans = "loki", "deepbluecli"
+$Yara = "C:\tools\yara\yara64.exe" # https://github.com/virustotal/yara
+$SupportedScans = "deepbluecli", "loki", "yara"
 
 if (!$Scans) { # Check for -Scans parameter.
     Write-Host "No -Scan specified. Only processing triage packages with KAPE.`n"
@@ -148,7 +149,11 @@ $TriagePackages | ForEach-Object -Parallel {
             }
         }
     }
-    if ($using:BlackBox) { 
+    if ("yara" -in $using:Scans) { # Run YARA Scan
+        $YaraDest = $mdest + "\Scans\YARA\"
+        New-Item -Path $YaraDest -ItemType Directory 2>&1 | Out-Null
+    }
+    if ($using:BlackBox) { # Consider the three supported scan options to be public demos.
         Write-Host "-BlackBox switch detected. Executing foreign script(s)."
         # .\blackbox.ps1
     }
