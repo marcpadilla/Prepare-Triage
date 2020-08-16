@@ -14,7 +14,8 @@ Prepare-Triage utilizes the following software:
 |DeepBlueCLI|[GitHub](https://github.com/sans-blue-team/DeepBlueCLI)|`C:\tools\DeepBlueCLI\DeepBlue.ps1`|
 |KAPE|[Download Request Form](https://www.kroll.com/en/services/cyber-risk/investigate-and-respond/kroll-artifact-parser-extractor-kape)|`C:\tools\KAPE\kape.exe`|
 |LOKI|[GitHub Releases](https://github.com/Neo23x0/Loki/releases), [Signature Base](https://github.com/Neo23x0/signature-base)|`C:\tools\loki\loki.exe`|
-|PowerShell|[GitHub Releases](https://github.com/PowerShell/powershell/releases)|Version 7 or above is required.|
+|PowerShell|[GitHub Releases](https://github.com/PowerShell/powershell/releases)|Version 7 or above is required
+|YARA|[GitHub Releases](https://github.com/VirusTotal/yara/releases)|`C:\tools\yara\yara64.ps1`|
 
 ## Examples
 
