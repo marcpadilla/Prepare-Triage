@@ -15,7 +15,7 @@ Prepare-Triage utilizes the following software:
 |KAPE|[Download Request Form](https://www.kroll.com/en/services/cyber-risk/investigate-and-respond/kroll-artifact-parser-extractor-kape)|`C:\tools\KAPE\kape.exe`|
 |LOKI|[GitHub Releases](https://github.com/Neo23x0/Loki/releases), [Signature Base](https://github.com/Neo23x0/signature-base)|`C:\tools\loki\loki.exe`|
 |PowerShell|[GitHub Releases](https://github.com/PowerShell/powershell/releases)|Version 7 or above is required
-|YARA|[GitHub Releases](https://github.com/VirusTotal/yara/releases)|`C:\tools\yara\yara64.ps1`|
+|YARA|[GitHub Releases](https://github.com/VirusTotal/yara/releases)|`C:\tools\yara\yara64.exe`|
 
 ## Examples
 
@@ -35,5 +35,6 @@ C:\tools\Prepare-Triage.ps1 -Source D:\TriageSourceDir\ -Destination C:\OutputDi
 
 - KAPE's [batch mode](https://ericzimmerman.github.io/KapeDocs/#!Pages\3.1-Batch-mode.md) (aka `_kape.cli`) may be all you are looking for. There's even a linear processing option! Investigate using this feature first.
 - Adjust the script to meet your specific reqirements. Your triage output file naming scheme may be different than what the script expects, for example.
+- The three available `-Scans` options (DeepBlueCLI, LOKI, and YARA) are examples of what is possible to throw in the automation chain. You may want to add others. (Hint: `blackbox.ps1`)
 
 If you are having trouble you can email me at [marc@padil.la](mailto:marc@padil.la).
