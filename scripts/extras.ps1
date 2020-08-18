@@ -3,8 +3,10 @@
 Write-Output "Starting Extras"
 
 $DataDirectory = $msource
-
 $ExtrasDest = $mdest + "\Extras\"
+
+New-Item -Path $ExtrasDest -ItemType Directory 2>&1 | Out-Null
+
 # Services
 $Services = Get-ChildItem -Recurse -Path $DataDirectory -Filter "System.evtx" | ForEach-Object {
     Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; ProviderName = "Service Control Manager" ; Id = 7045 }
@@ -44,5 +46,5 @@ $records += Get-ChildItem -Recurse -Path $DataDirectory -Filter "Microsoft-Windo
 }
 $records | Export-Csv -Path $ExtrasDest"rdp_successful.csv" -Encoding ascii
 $records | Select-Object -Property SourceIp | Sort-Object SourceIp -Unique | Export-Csv -Path $ExtrasDest"rdp_inbound_unique_ips.csv" -Encoding ascii
-
+# dedupe! clean up source
 Write-Output "Extras complete.`n"
