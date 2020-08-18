@@ -10,7 +10,7 @@ $Services = Get-ChildItem -Recurse -Path $DataDirectory -Filter "System.evtx" | 
 }
 $Services | Export-Csv -Path $ExtrasDest"services.csv" -Encoding ascii
 
-# Quad RDP Info
+# SUCCESSFULL RDP Information
 $records = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Security.evtx" | ForEach-Object {
     $EventLog = $_.FullName
     Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = 4624 } | ForEach-Object {
