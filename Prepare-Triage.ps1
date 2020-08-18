@@ -156,11 +156,7 @@ $TriagePackages | ForEach-Object -Parallel {
     }
     if ($using:Extras) { # Consider the three supported scan options to be public demos.
         Write-Host "-Extras switch detected. Executing foreign script(s)."
-        # .\blackbox.ps1
-    }
-    if ($using:BlackBox) { # Consider the three supported scan options to be public demos.
-        Write-Host "-BlackBox switch detected. Executing foreign script(s)."
-        # .\blackbox.ps1
+        & $using:Location"\scripts\extras.ps1"
     }
     Set-Location $Location
     if ($_.TriageType -eq "DupTriage") {

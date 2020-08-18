@@ -2,11 +2,8 @@
 
 Write-Output "Starting Extras"
 
-$DataDirectory = $using:msource
+$DataDirectory = $msource
 
-Write-Output $DataDirectory
-
-<#
 $ExtrasDest = $mdest + "\Extras\"
 # Services
 $Services = Get-ChildItem -Recurse -Path $DataDirectory -Filter "System.evtx" | ForEach-Object {
@@ -49,5 +46,3 @@ $records | Export-Csv -Path $ExtrasDest"rdp_successful.csv" -Encoding ascii
 $records | Select-Object -Property SourceIp | Sort-Object SourceIp -Unique | Export-Csv -Path $ExtrasDest"rdp_inbound_unique_ips.csv" -Encoding ascii
 
 Write-Output "Extras complete.`n"
-
-#>
