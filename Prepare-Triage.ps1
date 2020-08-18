@@ -153,6 +153,10 @@ $TriagePackages | ForEach-Object -Parallel {
         $YaraDest = $mdest + "\Scans\YARA\"
         New-Item -Path $YaraDest -ItemType Directory 2>&1 | Out-Null
     }
+    if ($using:Extras) { # Consider the three supported scan options to be public demos.
+        Write-Host "-Extras switch detected. Executing foreign script(s)."
+        # .\blackbox.ps1
+    }
     if ($using:BlackBox) { # Consider the three supported scan options to be public demos.
         Write-Host "-BlackBox switch detected. Executing foreign script(s)."
         # .\blackbox.ps1
