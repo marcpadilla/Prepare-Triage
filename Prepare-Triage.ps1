@@ -19,6 +19,7 @@ param(
     [string]$Destination,
     [array]$Scans,
     [switch]$NoKape,
+    [switch]$Extras,
     [switch]$BlackBlox
     )
 
