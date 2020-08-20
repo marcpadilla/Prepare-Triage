@@ -64,6 +64,12 @@ $SuccessfulRemoteLogins += Get-ChildItem -Recurse -Path $DataDirectory -Filter "
         $Time = ([xml]$_.ToXml()).GetElementsByTagName("TimeCreated").itemOf(0)
         $SourceIpAddress = ([xml]$_.ToXml()).GetElementsByTagName("EventXML").itemOf(0) | Select -ExpandProperty "Param3"
         $User = ([xml]$_.ToXml()).GetElementsByTagName("EventXML").itemOf(0) | Select -ExpandProperty "Param1"
+        if ($User -eq "") { 
+            $Comments = "Blank user name may indicate use of Sticky Keys."
+        }
+        else {
+            $Comments = ""
+        }
         [PsCustomObject][ordered]@{
             Time = [string]$Time.SystemTime.Replace("T", " ").Split(".")[0] ;
             Source = "TS-RCM:1149" ;
@@ -74,7 +80,7 @@ $SuccessfulRemoteLogins += Get-ChildItem -Recurse -Path $DataDirectory -Filter "
             SourceRelevance = "User Authentication Succeeded" ;
             EventDetails = "Authenticated login from " + $SourceIpAddress +  " as " + $User ;
             SourceIpAddress = $SourceIpAddress ;
-            Comments = "Blank user name may indicate use of Sticky Keys." ;
+            Comments = $Comments ;
             Hash = "" ;
             EventAddedBy = "Process-Triage" ;
             DateAdded = Get-Date -Format yyyy-MM-dd
