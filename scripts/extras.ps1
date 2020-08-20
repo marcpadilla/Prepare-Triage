@@ -17,7 +17,7 @@ $Services = Get-ChildItem -Recurse -Path $DataDirectory -Filter "System.evtx" | 
         [PsCustomObject][ordered]@{
             Time = [string]$Time.SystemTime.Replace("T", " ").Split(".")[0] ;
             Source = "System:7045" ;
-            Hostname = $using:ExtrasDest.Parent.Parent.Name ;
+            Hostname = $ExtrasDest.Parent.Parent.Name ;
             HostIpAddress = $HostIpAddress ;
             UserId = "" ;
             Assessment = "Context" ;
