@@ -66,7 +66,7 @@ $SuccessfulRemoteLogins += Get-ChildItem -Recurse -Path $DataDirectory -Filter "
         $User = ([xml]$_.ToXml()).GetElementsByTagName("EventXML").itemOf(0) | Select -ExpandProperty "Param1"
         if ($User -eq "") { 
             $Comments = "Blank user name may indicate use of Sticky Keys."
-            $User = "‽" # https://99percentinvisible.org/episode/interrobang/
+            #$User = "????"
         }
         else {
             $Comments = ""
