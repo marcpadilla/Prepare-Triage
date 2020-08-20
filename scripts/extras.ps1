@@ -31,11 +31,9 @@ $Services = Get-ChildItem -Recurse -Path $DataDirectory -Filter "System.evtx" | 
         }
     }
 }
-
-$Services | Export-Csv -Path $ExtrasDest"services.csv" -Encoding ascii
+$Services | Export-Csv -Path $ExtrasDest"service_creation.csv" -Encoding ascii
 
 <#
-
 # SUCCESSFULL RDP Information
 $records = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Security.evtx" | ForEach-Object {
     $EventLog = $_.FullName
