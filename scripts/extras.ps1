@@ -8,7 +8,7 @@ $ExtrasDest = $mdest + "\Extras\"
 New-Item -Path $ExtrasDest -ItemType Directory 2>&1 | Out-Null
 
 # Services
-$Svs = Get-ChildItem -Recurse -Path $DataDirectory -Filter "System.evtx" | ForEach-Object {
+$Services = Get-ChildItem -Recurse -Path $DataDirectory -Filter "System.evtx" | ForEach-Object {
     Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = 7045 } | ForEach-Object {
         $Time = ([xml]$_.ToXml()).GetElementsByTagName("TimeCreated").itemOf(0)
         $ServiceName = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(0) | Select -ExpandProperty "#text"
@@ -17,7 +17,7 @@ $Svs = Get-ChildItem -Recurse -Path $DataDirectory -Filter "System.evtx" | ForEa
         [PsCustomObject][ordered]@{
             Time = [string]$Time.SystemTime.Replace("T", " ").Split(".")[0] ;
             Source = "System:7045" ;
-            Hostname = $using:mdest.Parent.Name ;
+            #Hostname = $using:mdest.Parent.Name ;
             HostIpAddress = $HostIpAddress ;
             UserId = "" ;
             Assessment = "Context" ;
@@ -32,9 +32,9 @@ $Svs = Get-ChildItem -Recurse -Path $DataDirectory -Filter "System.evtx" | ForEa
     }
 }
 
-<#
-
 $Services | Export-Csv -Path $ExtrasDest"services.csv" -Encoding ascii
+
+<#
 
 # SUCCESSFULL RDP Information
 $records = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Security.evtx" | ForEach-Object {
