@@ -118,6 +118,7 @@ else {
 
 $TriagePackages | ForEach-Object -Parallel {
     $mdest = $using:Destination + $_.SensorId + "_" + $_.HostName + "_" + $_.LastWriteTime.ToString("yyyy-MM-ddTHHmmss")
+    $HostName = $_.HostName
     Write-Host "Processing" $_.FullName
     if ($_.TriageType -eq "DupTriage") {
         $msource = $using:TempDest + $_.HostName
