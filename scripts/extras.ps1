@@ -33,8 +33,6 @@ $ServiceCreation = Get-ChildItem -Recurse -Path $DataDirectory -Filter "System.e
 }
 $ServiceCreation | Export-Csv -Path $ExtrasDest"service_creation.csv" -Encoding ascii
 
-Get-WinEvent -FilterHashtable @{ Path = "C:\Windows\System32\winevt\Logs\Security.evtx" ; Id = 4624 } | ForEach-Object { [xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(5) }
-
 # SUCCESSFULL RDP Information
 $SuccessfulRemoteLogins = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Security.evtx" | ForEach-Object {
     Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = 4624 } | ForEach-Object {
@@ -65,6 +63,7 @@ $SuccessfulRemoteLogins = Get-ChildItem -Recurse -Path $DataDirectory -Filter "S
 $SuccessfulRemoteLogins | Export-Csv -Path $ExtrasDest"successul_remote_logins.csv" -Encoding ascii
 
 <#
+Get-WinEvent -FilterHashtable @{ Path = "C:\Windows\System32\winevt\Logs\Security.evtx" ; Id = 4624 } | ForEach-Object { [xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(5) }
 
 $DataDirectory = "C:\Windows\System32\winevt\Logs\"
 $HostName = "ExampleHost"
