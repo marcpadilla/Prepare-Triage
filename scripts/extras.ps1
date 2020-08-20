@@ -33,22 +33,26 @@ $ServiceCreation = Get-ChildItem -Recurse -Path $DataDirectory -Filter "System.e
 }
 $ServiceCreation | Export-Csv -Path $ExtrasDest"service_creation.csv" -Encoding ascii
 
+Get-WinEvent -FilterHashtable @{ Path = "C:\Windows\System32\winevt\Logs\Security.evtx" ; Id = 4624 } | ForEach-Object { [xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(5) }
+
 # SUCCESSFULL RDP Information
 $SuccessfulRemoteLogins = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Security.evtx" | ForEach-Object {
     Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = 4624 } | ForEach-Object {
         $EventId = 4624
         $Time = ([xml]$_.ToXml()).GetElementsByTagName("TimeCreated").itemOf(0)
         $SourceIpAddress = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(18) | Select -ExpandProperty "#text"
+        $Domain = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(6) | Select -ExpandProperty "#text"
+        $User = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(5) | Select -ExpandProperty "#text"
         if ((([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(8) | Select -ExpandProperty "#text") -eq "10") {
             [PsCustomObject][ordered]@{
                 Time = [string]$Time.SystemTime.Replace("T", " ").Split(".")[0] ;
                 Source = "Security:4624" ;
                 Hostname = $HostName ;
                 HostIpAddress = $HostIpAddress ;
-                UserId = "fixme" ;
+                UserId = [string]$Domain + "\" + [string]$User ;
                 Assessment = "Context" ;
                 SourceRelevance = "Successful Type 10 Logon (RDP)" ;
-                EventDetails = "Successful RDP login from " + $SourceIpAddress +  " using " + $UserId ;
+                EventDetails = "Successful RDP login from " + $SourceIpAddress +  " as " + $[string]$Domain + "\" + [string]$User ;
                 SourceIpAddress = $SourceIpAddress ;
                 Comments = "" ;
                 Hash = "" ;
@@ -61,6 +65,10 @@ $SuccessfulRemoteLogins = Get-ChildItem -Recurse -Path $DataDirectory -Filter "S
 $SuccessfulRemoteLogins | Export-Csv -Path $ExtrasDest"successul_remote_logins.csv" -Encoding ascii
 
 <#
+
+$DataDirectory = "C:\Windows\System32\winevt\Logs\"
+$HostName = "ExampleHost"
+
 $records += Get-ChildItem -Recurse -Path $DataDirectory -Filter "Microsoft-Windows-TerminalServices-RemoteConnectionManager%4Operational.evtx" | ForEach-Object {
     $EventLog = $_.FullName
     Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = 1149 } | ForEach-Object {
