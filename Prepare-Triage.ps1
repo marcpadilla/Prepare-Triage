@@ -156,7 +156,7 @@ $TriagePackages | ForEach-Object -Parallel {
         New-Item -Path $YaraDest -ItemType Directory 2>&1 | Out-Null
     }
     if ($using:Extras) { # Consider the three supported scan options to be public demos.
-        Write-Host "-Extras switch detected. Executing foreign script(s)."
+        #Write-Host "-Extras switch detected. Executing foreign script(s)."
         & $using:Location"\scripts\extras.ps1"
     }
     Set-Location $Location
