@@ -7,8 +7,8 @@ $ExtrasDest = $mdest + "\Extras\"
 
 New-Item -Path $ExtrasDest -ItemType Directory 2>&1 | Out-Null
 
-# Services
-$Services = Get-ChildItem -Recurse -Path $DataDirectory -Filter "System.evtx" | ForEach-Object {
+# Service Creation
+$ServiceCreation = Get-ChildItem -Recurse -Path $DataDirectory -Filter "System.evtx" | ForEach-Object {
     Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = 7045 } | ForEach-Object {
         $Time = ([xml]$_.ToXml()).GetElementsByTagName("TimeCreated").itemOf(0)
         $ServiceName = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(0) | Select -ExpandProperty "#text"
@@ -26,26 +26,41 @@ $Services = Get-ChildItem -Recurse -Path $DataDirectory -Filter "System.evtx" | 
             SourceIpAddress = "" ;
             Comments = "Service Created" ;
             Hash = "" ;
-            EventAddedBy = "MP" ;
+            EventAddedBy = "Process-Triage" ;
             DateAdded = Get-Date -Format yyyy-MM-dd
         }
     }
 }
-$Services | Export-Csv -Path $ExtrasDest"service_creation.csv" -Encoding ascii
+$ServiceCreation | Export-Csv -Path $ExtrasDest"service_creation.csv" -Encoding ascii
 
-<#
 # SUCCESSFULL RDP Information
-$records = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Security.evtx" | ForEach-Object {
-    $EventLog = $_.FullName
+$SuccessfulRemoteLogins = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Security.evtx" | ForEach-Object {
     Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = 4624 } | ForEach-Object {
         $EventId = 4624
         $Time = ([xml]$_.ToXml()).GetElementsByTagName("TimeCreated").itemOf(0)
-        $Ip = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(18) | Select -ExpandProperty "#text"
+        $SourceIpAddress = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(18) | Select -ExpandProperty "#text"
         if ((([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(8) | Select -ExpandProperty "#text") -eq "10") {
-            New-Object PsObject -Property @{ Time = $Time.SystemTime; SourceIp = $Ip; EventLog = $EventLog; EventId = $EventId }
+            [PsCustomObject][ordered]@{
+                Time = [string]$Time.SystemTime.Replace("T", " ").Split(".")[0] ;
+                Source = "Security:4624" ;
+                Hostname = $HostName ;
+                HostIpAddress = $HostIpAddress ;
+                UserId = "fixme" ;
+                Assessment = "Context" ;
+                SourceRelevance = "Successful Type 10 Logon (RDP)" ;
+                EventDetails = "Successful RDP login from "$SourceIpAddress" using "$UserId ;
+                SourceIpAddress = $SourceIpAddress ;
+                Comments = "" ;
+                Hash = "" ;
+                EventAddedBy = "Process-Triage" ;
+                DateAdded = Get-Date -Format yyyy-MM-dd
+            }
         }
     }
 }
+$SuccessfulRemoteLogins | Export-Csv -Path $ExtrasDest"successul_remote_logins.csv" -Encoding ascii
+
+<#
 $records += Get-ChildItem -Recurse -Path $DataDirectory -Filter "Microsoft-Windows-TerminalServices-RemoteConnectionManager%4Operational.evtx" | ForEach-Object {
     $EventLog = $_.FullName
     Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = 1149 } | ForEach-Object {
