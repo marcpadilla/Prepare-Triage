@@ -81,26 +81,37 @@ $SuccessfulRemoteLogins += Get-ChildItem -Recurse -Path $DataDirectory -Filter "
         }
     }
 }
-
-if ($SuccessfulRemoteLogins) { $SuccessfulRemoteLogins | Export-Csv -Path $ExtrasDest"successul_remote_logins.csv" -Encoding ascii }
-
-#Get-WinEvent -FilterHashtable @{ Path = "C:\Windows\System32\winevt\Logs\Microsoft-Windows-TerminalServices-RemoteConnectionManager%4Operational.evtx" ; Id = 1149 } | ForEach-Object { ([xml]$_.ToXml()).GetElementsByTagName("EventXML") | Select -ExpandProperty "Param3" }
-<#
-$DataDirectory = "C:\Windows\System32\winevt\Logs\"
-$HostName = "ExampleHost"
-$records += Get-ChildItem -Recurse -Path $DataDirectory -Filter "Microsoft-Windows-TerminalServices-LocalSessionManager%4Operational.evtx" | ForEach-Object {
-    $EventLog = $_.FullName
+$SuccessfulRemoteLogins += Get-ChildItem -Recurse -Path $DataDirectory -Filter "Microsoft-Windows-TerminalServices-LocalSessionManager%4Operational.evtx" | ForEach-Object {
     foreach ($EventId in 21, 22, 25) {
         Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = $EventId } | ForEach-Object {
             $Time = ([xml]$_.ToXml()).GetElementsByTagName("TimeCreated").itemOf(0)
-            $Ip = ([xml]$_.ToXml()).GetElementsByTagName("EventXML").itemOf(0) | Select -ExpandProperty "Address"
-            New-Object PsObject -Property @{ Time = $Time.SystemTime; SourceIp = $Ip; EventLog = $EventLog; EventId = $EventId }
+            $SourceIpAddress = ([xml]$_.ToXml()).GetElementsByTagName("EventXML").itemOf(0) | Select -ExpandProperty "Address"
+            $User = ([xml]$_.ToXml()).GetElementsByTagName("EventXML").itemOf(0) | Select -ExpandProperty "User"
+            [PsCustomObject][ordered]@{
+                Time = [string]$Time.SystemTime.Replace("T", " ").Split(".")[0] ;
+                Source = "TS-LSM:" + [string]$EventId ;
+                Hostname = $HostName ;
+                HostIpAddress = $HostIpAddress ;
+                UserId = $User;
+                Assessment = "Context" ;
+                SourceRelevance = "User Authentication Succeeded" ;
+                EventDetails = "Authenticated login from " + $SourceIpAddress +  " as " + $User ;
+                SourceIpAddress = $SourceIpAddress ;
+                Comments = "" ;
+                Hash = "" ;
+                EventAddedBy = "Process-Triage" ;
+                DateAdded = Get-Date -Format yyyy-MM-dd
+            }
         }
     }
 }
-$records | Export-Csv -Path $ExtrasDest"rdp_successful.csv" -Encoding ascii
-#$records | Select-Object -Property SourceIp | Sort-Object SourceIp -Unique | Export-Csv -Path $ExtrasDest"rdp_inbound_unique_ips.csv" -Encoding ascii
-# dedupe! clean up source
-Write-Output "Extras complete.`n"
+if ($SuccessfulRemoteLogins) { $SuccessfulRemoteLogins | Export-Csv -Path $ExtrasDest"successul_remote_logins.csv" -Encoding ascii }
 
+<#
+#if ($SuccessfulRemoteLogins) { $SuccessfulRemoteLogins | Export-Csv -Path $ExtrasDest"successul_remote_logins.csv" -Encoding ascii }
+
+Get-WinEvent -FilterHashtable @{ Path = "C:\Windows\System32\winevt\Logs\Microsoft-Windows-TerminalServices-LocalSessionManager%4Operational.evtx" ; Id = 21 } | ForEach-Object { ([xml]$_.ToXml()).GetElementsByTagName("EventXML").itemOf(0) | Select -ExpandProperty "User" }
+
+$DataDirectory = "C:\Windows\System32\winevt\Logs\"
+$HostName = "ExampleHost"
 #>
