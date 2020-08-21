@@ -113,7 +113,7 @@ if ((Get-CimInstance -Class Win32_ComputerSystem | Select -ExpandProperty Model)
 }
 else {
     $Cores = Get-CimInstance -Class CIM_Processor | Select -ExpandProperty NumberOfCores
-    $Cores = [int]$Cores
+    $Cores = [int]$Cores`
 }
 
 $TriagePackages | ForEach-Object -Parallel {
