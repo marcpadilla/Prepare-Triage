@@ -108,9 +108,11 @@ $Result += Get-ChildItem -Recurse -Path $DataDirectory -Filter "Microsoft-Window
         $User = ([xml]$_.ToXml()).GetElementsByTagName("EventXML").itemOf(0) | Select -ExpandProperty "Param1"
         if ($User -eq "") {
             $Column1 = "Blank user name may indicate use of Sticky Keys."
+            $EventDetails = "Authenticated login from " + $SourceIpAddress
         }
         else {
             $Column1 = ""
+            $EventDetails = "Authenticated login from " + $SourceIpAddress +  " as " + $User
         }
         [PsCustomObject][ordered]@{
             Time = [string]$Time.SystemTime.Replace("T", " ").Split(".")[0] ;
@@ -120,7 +122,7 @@ $Result += Get-ChildItem -Recurse -Path $DataDirectory -Filter "Microsoft-Window
             UserId = $User;
             Assessment = "Context" ;
             SourceRelevance = "RDS: User authentication succeeded." ;
-            EventDetails = "Authenticated login from " + $SourceIpAddress +  " as " + $User ;
+            EventDetails = $EventDetails ;
             SourceIpAddress = $SourceIpAddress ;
             Comments = "" ;
             Hash = "" ;
@@ -195,7 +197,7 @@ $Result += Get-ChildItem -Recurse -Path $DataDirectory -Filter "Microsoft-Window
         }
     }
 }
-if ($Result) { $Result | Export-Csv -Path $ExtrasDest"the_whole_chimichanga.csv" -Encoding ascii }
+if ($Result) { $Result | Export-Csv -Path $ExtrasDest"minichimi.csv" -Encoding ascii }
 #if ($Result) { $Result | Export-Csv -Path "the_whole_chimichanga.csv" -Encoding ascii } # testing
 
 <#
