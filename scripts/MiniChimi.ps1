@@ -1,12 +1,10 @@
 $DataDirectory = $msource
 $ExtrasDest = $mdest + "\Extras\"
-#$DataDirectory = "F:\F\Windows\system32\winevt\logs"
-#$ExtrasDest = "E:\onpoint\Extras\"
 
 New-Item -Path $ExtrasDest -ItemType Directory 2>&1 | Out-Null
 
 $CreatedServices = Get-ChildItem -Recurse -Path $DataDirectory -Filter "System.evtx" | ForEach-Object {
-    Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = 7045 } | ForEach-Object {
+    Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = 7045 } -ErrorAction SilentlyContinue | ForEach-Object {
         $Time = ([xml]$_.ToXml()).GetElementsByTagName("TimeCreated").itemOf(0)
         $ServiceName = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(0) | Select -ExpandProperty "#text"
         $ServicePath = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(1) | Select -ExpandProperty "#text"
@@ -46,7 +44,7 @@ $LogonTypes = [ordered]@{ # https://docs.microsoft.com/en-us/windows/security/th
 }
 
 $SuccessfulLogons = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Security.evtx" | ForEach-Object {
-    Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = 4624 } | ForEach-Object {
+    Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = 4624 } -ErrorAction SilentlyContinue | ForEach-Object {
         $Time = ([xml]$_.ToXml()).GetElementsByTagName("TimeCreated").itemOf(0)
         $SourceIpAddress = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(18) | Select -ExpandProperty "#text"
         $LogonType = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(8) | Select -ExpandProperty "#text"
@@ -83,7 +81,7 @@ $SuccessfulLogons = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Securit
 }
 
 $FailedLogons = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Security.evtx" | ForEach-Object {
-    Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = 4625 } | ForEach-Object {
+    Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = 4625 } -ErrorAction SilentlyContinue | ForEach-Object {
         $Time = ([xml]$_.ToXml()).GetElementsByTagName("TimeCreated").itemOf(0) # working
         $SourceIpAddress = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(19) | Select -ExpandProperty "#text"
         $LogonType = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(10) | Select -ExpandProperty "#text" #working
@@ -120,7 +118,7 @@ $FailedLogons = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Security.ev
 }
 
 $Application = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Application.evtx" | ForEach-Object {
-    Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = 11724 } | ForEach-Object {
+    Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = 11724 } -ErrorAction SilentlyContinue | ForEach-Object {
         $Time = ([xml]$_.ToXml()).GetElementsByTagName("TimeCreated").itemOf(0) # working
         $UserId = ([xml]$_.ToXml()).GetElementsByTagName("System") | Select -ExpandProperty "Security" | Select -ExpandProperty "UserId"
         $EventDetails = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(0) | Select -ExpandProperty "#text"
@@ -148,7 +146,7 @@ $Application = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Application.
 
 $TerminalServicesLSM = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Microsoft-Windows-TerminalServices-LocalSessionManager%4Operational.evtx" | ForEach-Object {
     foreach ($EventId in 21, 22, 23, 24, 25) {
-        Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = $EventId } | ForEach-Object {
+        Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = $EventId } -ErrorAction SilentlyContinue | ForEach-Object {
             $Time = ([xml]$_.ToXml()).GetElementsByTagName("TimeCreated").itemOf(0)
             $User = ([xml]$_.ToXml()).GetElementsByTagName("EventXML").itemOf(0) | Select -ExpandProperty "User"
             if ($EventId -eq 21) {
@@ -211,7 +209,7 @@ $TerminalServicesLSM = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Micr
 }
 
 $TerminalServicesRCM = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Microsoft-Windows-TerminalServices-RemoteConnectionManager%4Operational.evtx" | ForEach-Object {
-    Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = 1149 } | ForEach-Object {
+    Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = 1149 } -ErrorAction SilentlyContinue | ForEach-Object {
         $Time = ([xml]$_.ToXml()).GetElementsByTagName("TimeCreated").itemOf(0)
         $SourceIpAddress = ([xml]$_.ToXml()).GetElementsByTagName("EventXML").itemOf(0) | Select -ExpandProperty "Param3"
         $User = ([xml]$_.ToXml()).GetElementsByTagName("EventXML").itemOf(0) | Select -ExpandProperty "Param1"
@@ -247,7 +245,7 @@ $TerminalServicesRCM = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Micr
 
 $RemoteDesktopServicesRCTS = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Microsoft-Windows-RemoteDesktopServices-RdpCoreTS%4Operational.evtx" | ForEach-Object {
     foreach ($EventId in 98, 131) {
-        Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = $EventId } | ForEach-Object {
+        Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = $EventId } -ErrorAction SilentlyContinue | ForEach-Object {
             $Time = ([xml]$_.ToXml()).GetElementsByTagName("TimeCreated").itemOf(0)
             $User = ([xml]$_.ToXml()).GetElementsByTagName("EventXML").itemOf(0) | Select -ExpandProperty "User"
             if ($EventId -eq 98) {
