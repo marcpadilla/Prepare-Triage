@@ -74,7 +74,7 @@ foreach ($file in $TriagePackages) {
     else {
         $file | Add-Member -MemberType NoteProperty -Name "HostName" -Value $file.BaseName.Split("_DupTriage")[0].Split(".zip")[0].Split("_")[-1]
     }
-    $file | Add-Member -MemberType NoteProperty -Name "TriageType" -Value $file.FullName.Split("\")[2]
+    $file | Add-Member -MemberType NoteProperty -Name "TriageType" -Value $file.FullName.Split("\")[-3]
     $file | Add-Member -MemberType NoteProperty -Name "Incomplete" -Value ($file.FullName.Split("_")[-1] -eq "INCOMPLETE.zip")
     $file | Add-Member -MemberType NoteProperty -Name "Processed" -Value (Test-Path -Path ($Destination + $SensorId + "_" + $file.HostName + "_" + $file.LastWriteTime.ToString("yyyy-MM-ddTHHmmss")))
     $file | Add-Member -MemberType NoteProperty -Name "SensorId" -Value $SensorId
