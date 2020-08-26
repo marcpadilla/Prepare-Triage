@@ -1,6 +1,6 @@
 $DataDirectory = $msource
 $ExtrasDest = $mdest + "\Extras\"
-
+$Name = 
 #$DataDirectory = "F:\F\Windows\system32\winevt\logs"
 #$ExtrasDest = "E:\onpoint\Extras\"
 
@@ -24,7 +24,7 @@ $CreatedServices = Get-ChildItem -Recurse -Path $DataDirectory -Filter "System.e
             SourceIpAddress = "" ;
             Comments = "Service Created" ;
             Hash = "" ;
-            EventAddedBy = "Padilla" ;
+            EventAddedBy = $using:Name ;
             DateAdded = Get-Date -Format yyyy-MM-dd
             Column1 = ""
             Column2 = ""
@@ -103,7 +103,7 @@ $FailedLogons = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Security.ev
             Source = "Security:4625" ;
             Hostname = $HostName ;
             HostIpAddress = $HostIpAddress ;
-            UserId = $Domain + "\" + $User ;
+            UserId = $UserId ;
             Assessment = "Context" ;
             SourceRelevance = "Failed Logon" ;
             EventDetails = $LogonTypes.$LogonType ;
