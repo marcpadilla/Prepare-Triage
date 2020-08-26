@@ -82,13 +82,13 @@ $SuccessfulLogons = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Securit
 
 $FailedLogons = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Security.evtx" | ForEach-Object {
     Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = 4625 } -ErrorAction SilentlyContinue | ForEach-Object {
-        $Time = ([xml]$_.ToXml()).GetElementsByTagName("TimeCreated").itemOf(0) # working
+        $Time = ([xml]$_.ToXml()).GetElementsByTagName("TimeCreated").itemOf(0)
         $SourceIpAddress = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(19) | Select -ExpandProperty "#text"
-        $LogonType = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(10) | Select -ExpandProperty "#text" #working
-        $FailureReason = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(8) | Select -ExpandProperty "#text" #working
-        $WorkstationName = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(13) | Select -ExpandProperty "#text" #working
+        $LogonType = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(10) | Select -ExpandProperty "#text"
+        $FailureReason = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(8) | Select -ExpandProperty "#text"
+        $WorkstationName = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(13) | Select -ExpandProperty "#text"
         $Domain = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(6) | Select -ExpandProperty "#text"
-        $User = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(5) | Select -ExpandProperty "#text" #testing
+        $User = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(5) | Select -ExpandProperty "#text"
         if ($Domain) {
             $UserId = $Domain + "\" + $User
         }
@@ -125,7 +125,7 @@ $Application = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Application.
         [PsCustomObject][ordered]@{
             Time = [string]$Time.SystemTime.Replace("T", " ").Split(".")[0] ;
             Source = "Application:11724" ;
-            Hostname = "" ;
+            Hostname = $HostName ;
             HostIpAddress = "" ;
             UserId = $UserId ;
             Assessment = "Context" ;
