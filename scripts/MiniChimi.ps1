@@ -50,16 +50,23 @@ $SuccessfulLogons = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Securit
     Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = 4624 } | ForEach-Object {
         $Time = ([xml]$_.ToXml()).GetElementsByTagName("TimeCreated").itemOf(0)
         $SourceIpAddress = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(18) | Select -ExpandProperty "#text"
+        $LogonType = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(8) | Select -ExpandProperty "#text"
+        $LogonId = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(7) | Select -ExpandProperty "#text"
+        $WorkstationName = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(11) | Select -ExpandProperty "#text"
         $Domain = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(6) | Select -ExpandProperty "#text"
         $User = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(5) | Select -ExpandProperty "#text"
-        $LogonType = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(8) | Select -ExpandProperty "#text"
-        $Column2 = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(7) | Select -ExpandProperty "#text"
+        if ($Domain) {
+            $UserId = $Domain + "\" + $User
+        }
+        else {
+            $UserId = $User
+        }
         [PsCustomObject][ordered]@{
             Time = [string]$Time.SystemTime.Replace("T", " ").Split(".")[0] ;
             Source = "Security:4624" ;
             Hostname = $HostName ;
             HostIpAddress = $HostIpAddress ;
-            UserId = $Domain + "\" + $User ;
+            UserId = $UserId ;
             Assessment = "Context" ;
             SourceRelevance = "Successful Logon" ;
             EventDetails = $LogonTypes.$LogonType + " Logon" ;
@@ -69,8 +76,8 @@ $SuccessfulLogons = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Securit
             EventAddedBy = "Padilla" ;
             DateAdded = Get-Date -Format yyyy-MM-dd
             Column1 = $LogonType
-            Column2 = $Column2
-            Column3 = ""
+            Column2 = $LogonId
+            Column3 = $WorkstationName
             Column4 = ""
         }
     }
@@ -82,9 +89,15 @@ $FailedLogons = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Security.ev
         $SourceIpAddress = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(19) | Select -ExpandProperty "#text"
         $LogonType = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(10) | Select -ExpandProperty "#text" #working
         $FailureReason = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(8) | Select -ExpandProperty "#text" #working
+        $WorkstationName = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(13) | Select -ExpandProperty "#text" #working
         $Domain = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(6) | Select -ExpandProperty "#text"
         $User = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(5) | Select -ExpandProperty "#text" #testing
-        $WorkstationName = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(13) | Select -ExpandProperty "#text" #working
+        if ($Domain) {
+            $UserId = $Domain + "\" + $User
+        }
+        else {
+            $UserId = $User
+        }
         [PsCustomObject][ordered]@{
             Time = [string]$Time.SystemTime.Replace("T", " ").Split(".")[0] ;
             Source = "Security:4625" ;
@@ -101,7 +114,7 @@ $FailedLogons = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Security.ev
             DateAdded = Get-Date -Format yyyy-MM-dd
             Column1 = $LogonType
             Column2 = $FailureReason
-            Column3 = ""
+            Column3 = $WorkstationName
             Column4 = ""
         }
     }
