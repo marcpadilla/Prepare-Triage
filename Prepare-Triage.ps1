@@ -38,10 +38,7 @@ $Loki = "C:\tools\Loki\loki.exe" # https://github.com/Neo23x0/Loki, https://gith
 $Yara = "C:\tools\yara\yara64.exe" # https://github.com/virustotal/yara
 $SupportedScans = "deepbluecli", "loki", "yara"
 
-if (!$Scans) { # Check for -Scans parameter.
-    Write-Host "No -Scan specified. Only processing triage packages with KAPE.`n"
-}
-else {
+if ($Scans) { # Check for -Scans parameter.
     $Scans = $Scans.ToLower()
     if ((($Scans | Where-Object { $_ -notin $SupportedScans}).Count) -ne 0) { # Inform user of an invalid -Scan parameter.
         Write-Host "> Unsupported -Scan parameter. Please review and try again. Exiting.`n" -ForegroundColor Red
@@ -80,8 +77,6 @@ foreach ($file in $TriagePackages) {
 }
 
 $TriagePackages = $TriagePackages | Sort-Object LastWriteTime -Descending
-
-Write-Output $TriagePackages
 
 $TriagePackageCount = ($TriagePackages | Measure-Object).Count
 if ($TriagePackageCount -eq 0) { # Check for zero triage packages.
