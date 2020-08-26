@@ -1,8 +1,8 @@
-#$DataDirectory = $msource
-#$ExtrasDest = $mdest + "\Extras\"
+$DataDirectory = $msource
+$ExtrasDest = $mdest + "\Extras\"
 
-$DataDirectory = "F:\F\Windows\system32\winevt\logs"
-$ExtrasDest = "E:\onpoint\Extras\"
+#$DataDirectory = "F:\F\Windows\system32\winevt\logs"
+#$ExtrasDest = "E:\onpoint\Extras\"
 
 New-Item -Path $ExtrasDest -ItemType Directory 2>&1 | Out-Null
 

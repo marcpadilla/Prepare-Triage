@@ -60,6 +60,7 @@ if ($Destination[-1] -ne "\") {
     $Destination += "\"
 }
 
+# Expected Triage Naming Scheme: Share\KapeTriage\SensorId_HOSTNAME\DateTime_KapeTriage_HOSTNAME.zip
 Set-Location -Path $Source
 $TriageDirectories = "DupTriage\", "KapeTriage\"
 $TriagePackages = Get-ChildItem -Path $TriageDirectories -Recurse | Where-Object -FilterScript { $_.FullName -match ".7z|.zip" } | Select FullName,BaseName,LastWriteTime
@@ -157,7 +158,7 @@ $TriagePackages | ForEach-Object -Parallel {
     }
     if ($using:Extras) { # Consider the three supported scan options to be public demos.
         #Write-Host "-Extras switch detected. Executing foreign script(s)."
-        & $using:Location"\scripts\extras.ps1"
+        & $using:Location"\scripts\MiniChimi.ps1"
     }
     Set-Location $Location
     if ($_.TriageType -eq "DupTriage") {
