@@ -137,7 +137,7 @@ $TriagePackages | ForEach-Object -Parallel {
     if ($_.TriageType -eq "KapeTriage") {
         Write-Host "KapeTriage detected!"
         Expand-Archive -Path $_.FullName -DestinationPath $using:TempDest -Force
-        $vhdx = $using:TempDest + $_.BaseName + ".vhdx"
+        $vhdx = $using:TempDest + [IO.Compression.ZipFile]::OpenRead($_.FullName).Entries.FullName
         $msource = Mount-VHD -Path $vhdx -Passthru | Get-Disk | Get-Partition | Get-Volume
         $msource = $msource.DriveLetter + ":"
     }
