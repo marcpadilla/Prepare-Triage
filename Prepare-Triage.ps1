@@ -51,7 +51,7 @@ else {
 
 foreach ($item in $SevenZip, $Kape, $Source) {
     if (!(Test-Path -Path $item)) { # Check data source and required programs.
-        Write-Host "$item does not exist. Exiting.`n" -ForegroundColor Red
+        Write-Host "$item does not exis. Exiting.`n" -ForegroundColor Red
         Exit
     }
 }
@@ -65,6 +65,7 @@ Set-Location -Path $Source
 $TriageDirectories = "DupTriage\", "KapeTriage\"
 $TriagePackages = Get-ChildItem -Path $TriageDirectories -Recurse | Where-Object -FilterScript { $_.FullName -match ".7z|.zip" } | Select FullName,BaseName,LastWriteTime
 foreach ($file in $TriagePackages) {
+    Write-Output $file is found
     $SensorId = $file.FullName.Split("\")[3].Split("_")[0]
     $UnderscoreCount = ($file.BaseName.Split("_DupTriage.7z")[0].Split(".zip")[0].ToCharArray() -eq "_").Count # Account for "_" in hostnames.
     if ($UnderscoreCount -gt 2) {
@@ -77,6 +78,7 @@ foreach ($file in $TriagePackages) {
     $file | Add-Member -MemberType NoteProperty -Name "Incomplete" -Value ($file.FullName.Split("_")[-1] -eq "INCOMPLETE.zip")
     $file | Add-Member -MemberType NoteProperty -Name "Processed" -Value (Test-Path -Path ($Destination + $SensorId + "_" + $file.HostName + "_" + $file.LastWriteTime.ToString("yyyy-MM-ddTHHmmss")))
     $file | Add-Member -MemberType NoteProperty -Name "SensorId" -Value $SensorId
+    Write-Output $file
 }
 
 $TriagePackages = $TriagePackages | Sort-Object LastWriteTime -Descending
