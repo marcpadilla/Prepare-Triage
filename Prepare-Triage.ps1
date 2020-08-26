@@ -83,6 +83,8 @@ foreach ($file in $TriagePackages) {
 
 $TriagePackages = $TriagePackages | Sort-Object LastWriteTime -Descending
 
+Write-Output $TriagePackages
+
 $TriagePackageCount = ($TriagePackages | Measure-Object).Count
 if ($TriagePackageCount -eq 0) { # Check for zero triage packages.
     Write-Host "Good news, everyone! Bad news. No triage packages found. Are you looking in the right place?`n"
@@ -121,6 +123,7 @@ else {
 
 $TriagePackages | ForEach-Object -Parallel {
     $mdest = $using:Destination + $_.SensorId + "_" + $_.HostName + "_" + $_.LastWriteTime.ToString("yyyy-MM-ddTHHmmss")
+    Write-Output "mdest is: " $mdest
     $HostName = $_.HostName
     Write-Host "Processing" $_.FullName
     if ($_.TriageType -eq "DupTriage") {
@@ -132,6 +135,7 @@ $TriagePackages | ForEach-Object -Parallel {
         Remove-Item $msource\*.tar -Force
     }
     if ($_.TriageType -eq "KapeTriage") {
+        Write-Host "KapeTriage detected!"
         Expand-Archive -Path $_.FullName -DestinationPath $using:TempDest -Force
         $vhdx = $using:TempDest + $_.BaseName + ".vhdx"
         $msource = Mount-VHD -Path $vhdx -Passthru | Get-Disk | Get-Partition | Get-Volume
