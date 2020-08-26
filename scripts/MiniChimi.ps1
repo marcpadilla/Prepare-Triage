@@ -1,6 +1,5 @@
 $DataDirectory = $msource
 $ExtrasDest = $mdest + "\Extras\"
-$Name = 
 #$DataDirectory = "F:\F\Windows\system32\winevt\logs"
 #$ExtrasDest = "E:\onpoint\Extras\"
 
