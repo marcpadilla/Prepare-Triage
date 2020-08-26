@@ -268,4 +268,4 @@ $RemoteDesktopServicesRCTS = Get-ChildItem -Recurse -Path $DataDirectory -Filter
 }
 
 $MiniChimi = $CreatedServices + $SuccessfulLogons + $FailedLogons + $TerminalServicesLSM + $TerminalServicesRCM + $RemoteDesktopServicesRCTS + $Application
-$MiniChimi | Export-Csv C:\MiniChimi.csv && Start-Process C:\MiniChimi.csv
+$MiniChimi | Export-Csv C:\MiniChimi.csv && Start-Process $ExtrasDest"\MiniChimi.csv"
