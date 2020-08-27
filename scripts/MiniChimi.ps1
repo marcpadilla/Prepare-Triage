@@ -87,7 +87,7 @@ $FailedLogons = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Security.ev
         $LogonType = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(10) | Select -ExpandProperty "#text"
         $FailureReason = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(8) | Select -ExpandProperty "#text"
         $WorkstationName = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(13) | Select -ExpandProperty "#text"
-        $Domain = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(6) | Select -ExpandProperty "#text"
+        #$Domain = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(6) | Select -ExpandProperty "#text"
         $User = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(5) | Select -ExpandProperty "#text"
         if ($Domain) {
             $UserId = $Domain + "\" + $User
@@ -146,7 +146,7 @@ $Application = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Application.
 
 $Application += Get-ChildItem -Recurse -Path $DataDirectory -Filter "Application.evtx" | ForEach-Object {
     foreach ($EventId in 257, 258) {
-        Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = $EventId } | ForEach-Object {
+        Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = $EventId } -ErrorAction SilentlyContinue | ForEach-Object {
             $Time = ([xml]$_.ToXml()).GetElementsByTagName("TimeCreated").itemOf(0) # working
             $EventDetails = "Authentication Failed"
             $SourceIpAddress = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(0) | Select -ExpandProperty "#text"
