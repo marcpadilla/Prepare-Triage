@@ -144,6 +144,38 @@ $Application = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Application.
     }
 }
 
+$Application += Get-ChildItem -Recurse -Path $DataDirectory -Filter "Application.evtx" | ForEach-Object {
+    foreach ($EventId in 257, 258) {
+        Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = $EventId } | ForEach-Object {
+            $Time = ([xml]$_.ToXml()).GetElementsByTagName("TimeCreated").itemOf(0) # working
+            $EventDetails = "Authentication Failed"
+            $SourceIpAddress = ([xml]$_.ToXml()).GetElementsByTagName("Data").itemOf(0) | Select -ExpandProperty "#text"
+            $SourceIpAddress = $SourceIpAddress.Split(" ")[-1]
+            Write-Output $EventDetails
+            Write-Output $SourceIpAddress
+            [PsCustomObject][ordered]@{
+                Time = [string]$Time.SystemTime.Replace("T", " ").Split(".")[0] ;
+                Source = "Application:" + [string]$EventId;
+                Hostname = $HostName ;
+                HostIpAddress = "" ;
+                UserId = "" ;
+                Assessment = "Context" ;
+                SourceRelevance = "" ;
+                EventDetails = $EventDetails ;
+                SourceIpAddress = $SourceIpAddress ;
+                Comments = "" ;
+                Hash = "" ;
+                EventAddedBy = "MP" ;
+                DateAdded = Get-Date -Format yyyy-MM-dd
+                Column1 = ""
+                Column2 = ""
+                Column3 = ""
+                Column4 = ""
+            }
+        }
+    }
+}
+
 $TerminalServicesLSM = Get-ChildItem -Recurse -Path $DataDirectory -Filter "Microsoft-Windows-TerminalServices-LocalSessionManager%4Operational.evtx" | ForEach-Object {
     foreach ($EventId in 21, 22, 23, 24, 25) {
         Get-WinEvent -FilterHashtable @{ Path = $_.FullName ; Id = $EventId } -ErrorAction SilentlyContinue | ForEach-Object {

@@ -19,8 +19,7 @@ param(
     [string]$Destination,
     [array]$Scans,
     [switch]$NoKape,
-    [switch]$Extras,
-    [string]$Name
+    [switch]$Extras
     )
 
 Write-Host "`nPrepare-Triage by Marc Padilla (marc@padil.la)`n"
