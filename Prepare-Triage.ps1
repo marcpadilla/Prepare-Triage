@@ -24,7 +24,7 @@ param(
 Write-Host "`nPrepare-Triage by Marc Padilla (marc@padil.la)`n"
 
 # Initial variable assignments.
-$TempDest = "C:\Windows\Temp\angrydome\"
+$TempDest = "C:\Windows\Temp\pt\"
 $Location = Get-Location
 # Core executables.
 $SevenZip = "C:\Program Files\7-Zip\7z.exe" # https://www.7-zip.org/
