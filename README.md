@@ -18,13 +18,13 @@ Prepare-Triage utilizes the following software:
 
 ## Examples
 
-*Example 1:* Run KAPE, LOKI, and DeepBlueCLI on triage packages.
+Example 1: Run KAPE, LOKI, and DeepBlueCLI on triage packages.
 
 ```PowerShell
 C:\tools\Prepare-Triage.ps1 -Source D:\TriageSourceDir\ -Destination C:\OutputDir\ -Scans Loki,DeepBlueCLI
 ```
 
-*Example 2:* Only run DeepBlueCLI against triage packages. Do not run KAPE.
+Example 2: Only run DeepBlueCLI against triage packages. Do not run KAPE.
 
 ```PowerShell
 C:\tools\Prepare-Triage.ps1 -Source D:\TriageSourceDir\ -Destination C:\OutputDir\ -Scans DeepBlueCLI -NoKape
@@ -34,6 +34,6 @@ C:\tools\Prepare-Triage.ps1 -Source D:\TriageSourceDir\ -Destination C:\OutputDi
 
 - KAPE's [batch mode](https://ericzimmerman.github.io/KapeDocs/#!Pages\3.1-Batch-mode.md) (aka `_kape.cli`) may be all you are looking for. There's even a linear processing option! Investigate using this feature first.
 - Adjust the script to meet your specific reqirements. Your triage output file naming scheme may be different than what the script expects, for example.
-- The three available `-Scans` options (DeepBlueCLI and LOKI) are examples of what is possible to throw in the automation chain. You may want to add others. (Hint: `blackbox.ps1`)
+- The two available `-Scans` options (DeepBlueCLI and LOKI) are examples of what is possible to throw in the chain of automation chain. You may want to add others.
 
 If you are having trouble you can email me at [marc@padil.la](mailto:marc@padil.la).

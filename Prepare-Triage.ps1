@@ -138,8 +138,8 @@ $TriagePackages | ForEach-Object -Parallel {
     }
     if (!$using:NoKape) { # Run KAPE.
         $HostName = $_.HostName
-        #& $using:Kape --msource $msource --mdest $mdest --mflush --module !EZParser --mef csv 2>&1 | Out-Null
-        & $using:Kape --msource $msource --mdest $mdest --mflush --module !EZParser,Mini_Timeline --mef csv --mvars computerName:$HostName 2>&1 | Out-Null
+        & $using:Kape --msource $msource --mdest $mdest --mflush --module !EZParser --mef csv 2>&1 | Out-Null
+        #& $using:Kape --msource $msource --mdest $mdest --mflush --module !EZParser,Mini_Timeline --mef csv --mvars computerName:$HostName 2>&1 | Out-Null
     }
     if ("loki" -in $using:Scans) { # Run LOKI Scan
         $LokiDest = $mdest + "\Scans\LOKI\"
