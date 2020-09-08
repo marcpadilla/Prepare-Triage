@@ -18,8 +18,7 @@ param(
     [Parameter(Mandatory)]
     [string]$Destination,
     [array]$Scans,
-    [switch]$NoKape,
-    [switch]$Extras
+    [switch]$NoKape
     )
 
 Write-Host "`nPrepare-Triage by Marc Padilla (marc@padil.la)`n"
@@ -34,8 +33,7 @@ $Kape = "C:\tools\kape\kape.exe"
 $DeepBlueCli = "C:\tools\DeepBlueCLI\DeepBlue.ps1" # https://github.com/sans-blue-team/DeepBlueCLI
 $DeepBlueCliEventLogs = "Application", "Security", "System", "Microsoft-Windows-PowerShell%4Operational", "Microsoft-Windows-Sysmon%4Operational"
 $Loki = "C:\tools\Loki\loki.exe" # https://github.com/Neo23x0/Loki, https://github.com/Neo23x0/signature-base
-$Yara = "C:\tools\yara\yara64.exe" # https://github.com/virustotal/yara
-$SupportedScans = "deepbluecli", "loki", "yara"
+$SupportedScans = "deepbluecli", "loki"
 
 if ($Scans) { # Check for -Scans parameter.
     $Scans = $Scans.ToLower()
@@ -47,7 +45,7 @@ if ($Scans) { # Check for -Scans parameter.
 
 foreach ($item in $SevenZip, $Kape, $Source) {
     if (!(Test-Path -Path $item)) { # Check data source and required programs.
-        Write-Host "$item does not exis. Exiting.`n" -ForegroundColor Red
+        Write-Host "$item does not exist. Exiting.`n" -ForegroundColor Red
         Exit
     }
 }
@@ -56,9 +54,16 @@ if ($Destination[-1] -ne "\") {
     $Destination += "\"
 }
 
-# Expected Triage Naming Scheme: Share\KapeTriage\SensorId_HOSTNAME\DateTime_KapeTriage_HOSTNAME.zip
+# Expected Triage Naming Scheme: Share\KapeTriage\[SensorId]_[HostName]\[DateTime]_KapeTriage_[HostName].zip
 Set-Location -Path $Source
-$TriageDirectories = "DupTriage\", "KapeTriage\"
+$TriageTypes = "DupTriage\", "KapeTriage\"
+$TriageDirectories = @()
+foreach ($TriageType in $TriageTypes) { # Avoid trying to access triage directories which do not exist.
+    if (Test-Path -Path $TriageType) {
+        $TriageDirectories += $TriageType
+    }
+}
+
 $TriagePackages = Get-ChildItem -Path $TriageDirectories -Recurse | Where-Object -FilterScript { $_.FullName -match ".7z|.zip" } | Select FullName,BaseName,LastWriteTime
 foreach ($file in $TriagePackages) {
     $SensorId = $file.FullName.Split("\")[3].Split("_")[0]
@@ -131,7 +136,11 @@ $TriagePackages | ForEach-Object -Parallel {
         $msource = Mount-VHD -Path $vhdx -Passthru | Get-Disk | Get-Partition | Get-Volume
         $msource = $msource.DriveLetter + ":"
     }
-    if (!$using:NoKape) { & $using:Kape --msource $msource --mdest $mdest --mflush --module !EZParser --mef csv 2>&1 | Out-Null } # Run KAPE.
+    if (!$using:NoKape) { # Run KAPE.
+        $HostName = $_.HostName
+        #& $using:Kape --msource $msource --mdest $mdest --mflush --module !EZParser --mef csv 2>&1 | Out-Null
+        & $using:Kape --msource $msource --mdest $mdest --mflush --module !EZParser,Mini_Timeline --mef csv --mvars computerName:$HostName 2>&1 | Out-Null
+    }
     if ("loki" -in $using:Scans) { # Run LOKI Scan
         $LokiDest = $mdest + "\Scans\LOKI\"
         New-Item -Path $LokiDest -ItemType Directory 2>&1 | Out-Null
@@ -147,14 +156,6 @@ $TriagePackages | ForEach-Object -Parallel {
                 & $using:DeepBlueCli $_.FullName | ConvertTo-Csv | Out-File -FilePath $DeepBlueCliDest$Count"_"$EventLog".csv" 2>&1 | Out-Null
             }
         }
-    }
-    if ("yara" -in $using:Scans) { # Run YARA Scan
-        $YaraDest = $mdest + "\Scans\YARA\"
-        New-Item -Path $YaraDest -ItemType Directory 2>&1 | Out-Null
-    }
-    if ($using:Extras) { # Consider the three supported scan options to be public demos.
-        #Write-Host "-Extras switch detected. Executing foreign script(s)."
-        & $using:Location"\scripts\MiniChimi.ps1"
     }
     Set-Location $Location
     if ($_.TriageType -eq "DupTriage") {
